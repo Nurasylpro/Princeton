@@ -91,5 +91,16 @@ HALL_PLAN: list[Chunk] = [
     Chunk("in3p_moving_2", 3, "in3p_moving", "Three or more people inside. Keep moving." + _OUT, None),
 ]
 
+# ---- plan "presence": only nobody vs one person inside the triangle (crowd outside) -----------
+PRESENCE_STATES = {"in0": (0, False), "in1_still": (1, False), "in1_moving": (1, True)}
+PRESENCE_PLAN: list[Chunk] = [
+    Chunk("in0_1", 0, "in0", "Nobody inside the triangle." + _OUT, None),
+    Chunk("in0_2", 0, "in0", "Nobody inside the triangle." + _OUT, None),
+    Chunk("in1_still_1", 1, "in1_still", "One person inside. Sit or stand quietly." + _OUT, None),
+    Chunk("in1_still_2", 1, "in1_still", "One person inside, other spot. Stay still." + _OUT, None),
+    Chunk("in1_moving_1", 1, "in1_moving", "One person inside. Move: turn, wave, small steps." + _OUT, None),
+    Chunk("in1_moving_2", 1, "in1_moving", "One person inside. Keep moving." + _OUT, None),
+]
+
 PLANS = {"room": (ROOM_PLAN, ROOM_STATES), "zone": (ZONE_PLAN, ZONE_STATES),
-         "hall": (HALL_PLAN, HALL_STATES)}
+         "hall": (HALL_PLAN, HALL_STATES), "presence": (PRESENCE_PLAN, PRESENCE_STATES)}

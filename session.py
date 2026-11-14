@@ -184,7 +184,7 @@ def main() -> None:
             print(f"{i:2d}. {c.id:14s} {c.people} in room  {c.say}")
         return
 
-    prefix = {"room": "S", "zone": "Z", "hall": "H"}[args.plan]
+    prefix = {"room": "S", "zone": "Z", "hall": "H", "presence": "P"}[args.plan]
     session = args.resume or datetime.now().strftime(f"{prefix}%Y%m%d_%H%M")
     sdir = SESSIONS_DIR / session
     if args.resume and not (sdir / "session.json").exists():
@@ -201,7 +201,7 @@ def main() -> None:
                            "distance_to_phone_m": dist(p, PHONE["pos_m"])} for n, p in NODES.items()],
             "zone": ("people counted only INSIDE the taped triangle formed by the iPhone and the "
                      "receivers; normal crowd outside, kept >= 1 m from the tape"
-                     if args.plan in ("zone", "hall") else None),
+                     if args.plan in ("zone", "hall", "presence") else None),
             "radio": {"channel": 6, "bandwidth_mhz": 20,
                       "csi": "HT: 256 int8 = L-LTF[0:128] + HT-LTF[128:256], [imag, real] pairs",
                       "nominal_rate_hz": "~30-45 per node (firmware cap 50), uneven: use ts_unix and seq"},
@@ -233,12 +233,12 @@ def main() -> None:
                 if input("\nRun the teammates' block (sit/stand + jump, 3 min)? [y/n]: ").strip().lower() != "y":
                     break
             while True:
-                where = "inside the triangle" if meta.get("plan") == "hall" else "in the room"
+                where = "inside the triangle" if meta.get("plan") in ("hall", "presence") else "in the room"
                 n_txt = f"{chunk.people}+" if meta.get("plan") == "hall" and chunk.people >= 3 else str(chunk.people)
                 print(f"\n--- Step {len(done) + i} of {len(PLAN)}: {chunk.id}  ({n_txt} people {where}) ---")
                 print(f"  {chunk.say}")
                 voice.say(chunk.say)
-                if chunk.people == 0 and meta.get("plan") != "hall":
+                if chunk.people == 0 and meta.get("plan") not in ("hall", "presence"):
                     print("  Everyone must be OUT of the room, door as agreed.")
                 input("  Press Enter when ready (recording starts 5 s later)... ")
                 for s in range(5, 0, -1):

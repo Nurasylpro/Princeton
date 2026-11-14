@@ -123,6 +123,7 @@ class Hub(asyncio.DatagramProtocol):
             self.fwd.ioctl(socket.SIO_UDP_CONNRESET, False)
         self.nodes: dict[int, Node] = {}
         self.recorder: Recorder | None = None
+        self.cal_capture: dict[int, list[np.ndarray]] | None = None  # empty-room re-calibration
         self.csi_clients: set[asyncio.Queue] = set()
         self.event_clients: set[asyncio.Queue] = set()
         self.count_model: dict | None = None
@@ -156,6 +157,8 @@ class Hub(asyncio.DatagramProtocol):
         pkt = cf.parse_csi(data) if magic == cf.CSI_MAGIC else None
         if pkt is not None:
             self.nodes.setdefault(pkt.node_id, Node(pkt.node_id)).add(t, pkt)
+            if self.cal_capture is not None and len(pkt.raw) >= 128:
+                self.cal_capture.setdefault(pkt.node_id, []).append(pkt.amplitudes52())
             if self.csi_clients:
                 msg = json.dumps(pkt.to_json(t), separators=(",", ":"))
                 for q in list(self.csi_clients):
@@ -346,6 +349,37 @@ def make_app(hub: Hub) -> web.Application:
             return web.json_response({"error": "not recording"}, status=409)
         rec, hub.recorder = hub.recorder, None
         return web.json_response({"ok": True, **rec.close()})
+
+    @routes.post("/v1/calibrate")
+    async def calibrate(request):
+        """Nobody inside for `seconds`: refresh the model's empty-room fingerprint (drift fix)."""
+        body = await request.json() if request.can_read_body else {}
+        seconds = float(min(max(body.get("seconds", 30), 10), 120))
+        if hub.count_model is None:
+            return web.json_response({"error": "no model loaded"}, status=409)
+        if hub.cal_capture is not None:
+            return web.json_response({"error": "calibration already running"}, status=409)
+        hub.cal_capture = {}
+        try:
+            await asyncio.sleep(seconds)
+        finally:
+            cap, hub.cal_capture = hub.cal_capture, None
+        nodes = tuple(hub.count_model.get("nodes", feat.NODES))
+        short = [n for n in nodes if len(cap.get(n, [])) < 10 * seconds]
+        if short:
+            return web.json_response({"error": f"too few packets from nodes {short}; nothing changed",
+                                      "packets": {str(n): len(cap.get(n, [])) for n in nodes}}, status=422)
+        new = {n: feat.node_baseline(np.stack(cap[n])) for n in nodes}
+        old = hub.count_model["baselines"]
+        shift = {str(n): round(float(np.linalg.norm(new[n] - old[n])), 3) for n in nodes if n in old}
+        hub.count_model["baselines"] = new
+        hub.count_model["calibrated_at"] = iso(time.time())
+        with open(active_model_path(), "wb") as f:
+            pickle.dump(hub.count_model, f)
+        hub.recent_probs.clear()
+        return web.json_response({"ok": True, "seconds": seconds,
+                                  "packets": {str(n): len(cap[n]) for n in nodes},
+                                  "fingerprint_shift": shift})
 
     @routes.post("/v1/models/reload")
     async def reload(_):
