@@ -196,6 +196,20 @@ class Hub(asyncio.DatagramProtocol):
         firmware = {str(n): round(nd.motion[0], 3) for n, nd in sorted(self.nodes.items())
                     if n in feat.NODES and now - nd.motion[1] < 5.0}
         act = self.activity
+        # A node with no packets in the last 2 s makes every estimate meaningless: say so
+        # instead of letting the model guess from an empty window.
+        no_data = [n for n in feat.NODES
+                   if n not in self.nodes or now - self.nodes[n].last_seen > 2.0]
+        if no_data:
+            self.recent_probs.clear()
+            return {
+                "type": "auracare.event", "v": 1, "ts": st["ts"], "ts_unix": st["ts_unix"],
+                "ready": False, "no_data_nodes": no_data,
+                "activity": act, "people": None,
+                "motion": {"state": "no_data", "score": None, "threshold": None, "source": None,
+                           "firmware_per_node": firmware},
+                "presence": None,
+            }
         people = self.people(now)
         if people is not None:
             # Room-trained model: P(moving) is the calibrated movement score.

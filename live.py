@@ -15,7 +15,11 @@ while True:
         with urllib.request.urlopen(URL, timeout=2) as r:
             e = json.loads(r.read())
         p = e.get("people")
-        if p is None:
+        if e.get("no_data_nodes"):
+            boards = ", ".join(str(n) for n in e["no_data_nodes"])
+            line = (f"NO DATA from ESP {boards}: is the laptop on the 'iPhone' hotspot "
+                    f"and are the boards powered?")
+        elif p is None:
             line = "no trained model loaded (run train_model.py)"
         else:
             bar = "#" * int(20 * e["motion"]["score"])
