@@ -8,7 +8,11 @@ import urllib.request
 
 URL = "http://127.0.0.1:8770/v1/events/latest"
 STATE_TEXT = {"empty": "EMPTY ROOM", "p1_still": "1 PERSON, STILL", "p1_moving": "1 PERSON, MOVING",
-              "p2_still": "2 PEOPLE, STILL", "p2_moving": "2 PEOPLE, MOVING"}
+              "p2_still": "2 PEOPLE, STILL", "p2_moving": "2 PEOPLE, MOVING",
+              # hall plan: people INSIDE the triangle
+              "in0": "NOBODY INSIDE", "in1_still": "1 INSIDE, STILL", "in1_moving": "1 INSIDE, MOVING",
+              "in2_still": "2 INSIDE, STILL", "in2_moving": "2 INSIDE, MOVING",
+              "in3p_still": "3+ INSIDE, STILL", "in3p_moving": "3+ INSIDE, MOVING"}
 
 while True:
     try:

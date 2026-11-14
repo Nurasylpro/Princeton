@@ -17,7 +17,7 @@ import subprocess
 import sys
 import time
 import urllib.request
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -40,35 +40,9 @@ PHONE = {"name": "iPhone 15 Pro hotspot (transmitter)", "pos_m": list(config.PHO
 NODES = {n: list(p) for n, p in config.RECEIVERS_M.items()}
 
 
-@dataclass
-class Chunk:
-    id: str
-    people: int
-    state: str               # empty | p1_still | p1_moving | p2_still | p2_moving | (teammates) p1_sitstand | p1_jump
-    say: str                 # spoken + shown instruction
-    ruview_id: str | None    # RuView recording id (train_* -> activity classifier), None = not used there
-    prompts: list[str] = field(default_factory=list)  # repeated spoken actions during the chunk
-    teammates_block: bool = False
+from plans import PLANS, Chunk  # noqa: E402  (recording plans live in plans.py)
 
-
-PLAN: list[Chunk] = [
-    Chunk("empty_1", 0, "empty", "Nobody in the room.", "train_empty_1"),
-    Chunk("empty_2", 0, "empty", "Nobody in the room.", "train_empty_2"),
-    Chunk("p1_still_1", 1, "p1_still", "One person. Sit quietly on the chair.", "train_still_p1_1"),
-    Chunk("p1_still_2", 1, "p1_still", "One person. Stand quietly.", "train_still_p1_2"),
-    Chunk("p1_moving_1", 1, "p1_moving", "One person. Walk around, turn, wave your arms.", "train_moving_p1_1"),
-    Chunk("p1_moving_2", 1, "p1_moving", "One person. Keep moving: walk, turn, wave.", "train_moving_p1_2"),
-    Chunk("p2_still_1", 2, "p2_still", "Two people. Both sit or stand quietly.", "train_still_p2_1"),
-    Chunk("p2_still_2", 2, "p2_still", "Two people. Both stay still, swap positions first.", "train_still_p2_2"),
-    Chunk("p2_moving_1", 2, "p2_moving", "Two people. Both move around.", "train_moving_p2_1"),
-    Chunk("p2_moving_2", 2, "p2_moving", "Two people. Both keep moving.", "train_moving_p2_2"),
-    Chunk("p1_sitstand_1", 1, "p1_sitstand", "One person, standing next to the chair. Follow the commands.",
-          None, ["sit down", "stand up"], True),
-    Chunk("p1_sitstand_2", 1, "p1_sitstand", "One person, standing next to the chair. Follow the commands.",
-          None, ["sit down", "stand up"], True),
-    Chunk("p1_jump_1", 1, "p1_jump", "One person, standing. Jump once on each command.",
-          None, ["jump"], True),
-]
+PLAN: list[Chunk] = PLANS["room"][0]  # replaced in main() by the chosen/resumed plan
 
 
 # ---- helpers ------------------------------------------------------------------------------
@@ -198,27 +172,44 @@ def record_chunk(chunk: Chunk, session: str, voice: Voice) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--resume", help="session id to continue")
+    ap.add_argument("--plan", choices=sorted(PLANS), default="hall",
+                    help="recording plan for a NEW session (default: hall)")
+    ap.add_argument("--resume", help="session id to continue (its own plan is used)")
+    ap.add_argument("--list", action="store_true", help="only print the steps, record nothing")
     args = ap.parse_args()
 
-    session = args.resume or datetime.now().strftime("S%Y%m%d_%H%M")
+    global PLAN
+    if args.list:
+        for i, c in enumerate(PLANS[args.plan][0], 1):
+            print(f"{i:2d}. {c.id:14s} {c.people} in room  {c.say}")
+        return
+
+    prefix = {"room": "S", "zone": "Z", "hall": "H"}[args.plan]
+    session = args.resume or datetime.now().strftime(f"{prefix}%Y%m%d_%H%M")
     sdir = SESSIONS_DIR / session
+    if args.resume and not (sdir / "session.json").exists():
+        sys.exit(f"no session {session} in {SESSIONS_DIR}")
     sdir.mkdir(parents=True, exist_ok=True)
     meta_path = sdir / "session.json"
     if meta_path.exists():
         meta = json.loads(meta_path.read_text())
     else:
         meta = {
-            "session": session, "created_iso": iso(time.time()),
+            "session": session, "plan": args.plan, "created_iso": iso(time.time()),
             "room": ROOM, "transmitter": PHONE,
             "receivers": [{"node_id": n, "board": config.BOARD, "pos_m": p,
                            "distance_to_phone_m": dist(p, PHONE["pos_m"])} for n, p in NODES.items()],
-            "radio": {"channel": 6, "bandwidth_mhz": 20, "csi": "L-LTF, 64 subcarriers, 128 int8 [imag, real]",
-                      "nominal_rate_hz": "~45 per node (firmware cap 50), uneven: use ts_unix and seq"},
+            "zone": ("people counted only INSIDE the taped triangle formed by the iPhone and the "
+                     "receivers; normal crowd outside, kept >= 1 m from the tape"
+                     if args.plan in ("zone", "hall") else None),
+            "radio": {"channel": 6, "bandwidth_mhz": 20,
+                      "csi": "HT: 256 int8 = L-LTF[0:128] + HT-LTF[128:256], [imag, real] pairs",
+                      "nominal_rate_hz": "~30-45 per node (firmware cap 50), uneven: use ts_unix and seq"},
             "firmware": "RuView esp32-csi-node 0.8.18, local branch esp32-classic",
             "chunks": [],
         }
         save(meta, meta_path)
+    PLAN = PLANS[meta.get("plan", "room")][0]
     done = {c["id"] for c in meta["chunks"]}
 
     print(f"\n=== AuraCare recording session {session} ===")
@@ -242,10 +233,12 @@ def main() -> None:
                 if input("\nRun the teammates' block (sit/stand + jump, 3 min)? [y/n]: ").strip().lower() != "y":
                     break
             while True:
-                print(f"\n--- Step {len(done) + i} of {len(PLAN)}: {chunk.id}  ({chunk.people} people in the room) ---")
+                where = "inside the triangle" if meta.get("plan") == "hall" else "in the room"
+                n_txt = f"{chunk.people}+" if meta.get("plan") == "hall" and chunk.people >= 3 else str(chunk.people)
+                print(f"\n--- Step {len(done) + i} of {len(PLAN)}: {chunk.id}  ({n_txt} people {where}) ---")
                 print(f"  {chunk.say}")
                 voice.say(chunk.say)
-                if chunk.people == 0:
+                if chunk.people == 0 and meta.get("plan") != "hall":
                     print("  Everyone must be OUT of the room, door as agreed.")
                 input("  Press Enter when ready (recording starts 5 s later)... ")
                 for s in range(5, 0, -1):
@@ -268,7 +261,7 @@ def main() -> None:
         voice.close()
 
     print(f"\nSession saved in {sdir}")
-    print("Next:  python train_model.py " + session + "   then   python package_dataset.py " + session)
+    print("Next:  python train_model.py " + session + "   (then optionally: python package_dataset.py " + session + ")")
 
 
 if __name__ == "__main__":

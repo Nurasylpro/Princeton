@@ -17,6 +17,7 @@ import gzip
 import json
 import pickle
 import re
+import socket
 import struct
 import time
 from collections import deque
@@ -32,7 +33,14 @@ import features as feat
 
 ROOT = Path(__file__).resolve().parent
 SESSIONS_DIR = ROOT / "data" / "sessions"
-MODEL_PATH = ROOT / "models" / "count_v1.pkl"
+MODELS_DIR = ROOT / "models"
+
+
+def active_model_path() -> Path:
+    """models/ACTIVE names the model to serve (written by train_model.py / use_model.py)."""
+    active = MODELS_DIR / "ACTIVE"
+    name = active.read_text().strip() if active.exists() else "room_v1"
+    return MODELS_DIR / f"{name}.pkl"
 RUVIEW_LATEST = "http://127.0.0.1:3000/api/v1/sensing/latest"
 RUVIEW_ADAPTIVE = "http://127.0.0.1:3000/api/v1/adaptive/status"
 MOTION_THRESHOLD = 0.20  # firmware CONFIG_ADAPTIVE_MOTION_THRESH_PERMIL=200
@@ -106,6 +114,13 @@ class Recorder:
 class Hub(asyncio.DatagramProtocol):
     def __init__(self, forward: tuple[str, int]):
         self.forward = forward
+        # Forward through a SEPARATE socket. On Windows, sending to a closed UDP port (RuView
+        # container down) returns ICMP "port unreachable", which surfaces as WSAECONNRESET on
+        # the sending socket and stops the receive loop if it is the listening socket.
+        self.fwd = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.fwd.setblocking(False)
+        if hasattr(socket, "SIO_UDP_CONNRESET"):
+            self.fwd.ioctl(socket.SIO_UDP_CONNRESET, False)
         self.nodes: dict[int, Node] = {}
         self.recorder: Recorder | None = None
         self.csi_clients: set[asyncio.Queue] = set()
@@ -121,10 +136,22 @@ class Hub(asyncio.DatagramProtocol):
     # ---- UDP -------------------------------------------------------------------
     def connection_made(self, transport) -> None:
         self.transport = transport
+        sock = transport.get_extra_info("socket")
+        if sock is not None and hasattr(socket, "SIO_UDP_CONNRESET"):
+            try:  # belt and braces: never let an ICMP error stop reception
+                sock.ioctl(socket.SIO_UDP_CONNRESET, False)
+            except (OSError, AttributeError, ValueError):
+                pass
+
+    def error_received(self, exc: Exception) -> None:
+        pass  # transient socket errors must not stop the hub
 
     def datagram_received(self, data: bytes, addr) -> None:
         t = time.time()
-        self.transport.sendto(data, self.forward)  # RuView gets every datagram unchanged
+        try:  # RuView gets every datagram unchanged; never let its absence stop us
+            self.fwd.sendto(data, self.forward)
+        except OSError:
+            pass
         magic = cf.magic_of(data)
         pkt = cf.parse_csi(data) if magic == cf.CSI_MAGIC else None
         if pkt is not None:
@@ -144,8 +171,10 @@ class Hub(asyncio.DatagramProtocol):
 
     # ---- models ----------------------------------------------------------------
     def load_model(self) -> None:
-        if MODEL_PATH.exists():
-            with open(MODEL_PATH, "rb") as f:
+        path = active_model_path()
+        self.count_model = None
+        if path.exists():
+            with open(path, "rb") as f:
                 self.count_model = pickle.load(f)
             self.recent_probs.clear()
 
@@ -165,7 +194,8 @@ class Hub(asyncio.DatagramProtocol):
         moving_p = 0.0
         for s, p in zip(states, probs):
             c, mv = smap[s]
-            count_p[str(c)] = count_p.get(str(c), 0.0) + float(p)
+            key = "3+" if c >= 3 else str(c)
+            count_p[key] = count_p.get(key, 0.0) + float(p)
             moving_p += float(p) if mv else 0.0
         state = states[int(np.argmax(probs))]
         count = max(count_p, key=count_p.get)
@@ -186,7 +216,8 @@ class Hub(asyncio.DatagramProtocol):
                           "last_packet_age_ms": int((now - nd.last_seen) * 1000),
                           "healthy": nd.healthy(now)})
         models = {"activity": "ruview-adaptive" if self.adaptive_loaded else None,
-                  "people_count": self.count_model.get("trained_at") if self.count_model else None}
+                  "people_count": (f"{self.count_model.get('name')} ({self.count_model.get('trained_at')})"
+                                   if self.count_model else None)}
         ready = all(x["healthy"] for x in nodes) and all(models.values())
         return {"ts": iso(now), "ts_unix": round(now, 3), "ready": ready, "models": models,
                 "nodes": nodes, "recording": self.recorder is not None}

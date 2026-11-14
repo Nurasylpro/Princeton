@@ -23,12 +23,15 @@ from sklearn.metrics import confusion_matrix
 
 import csi_format as cf
 import features as feat
+from plans import PLANS
 
 ROOT = Path(__file__).resolve().parent
 SESSIONS_DIR = ROOT / "data" / "sessions"
-MODEL_PATH = ROOT / "models" / "count_v1.pkl"
-STATES = {"empty": (0, False), "p1_still": (1, False), "p1_moving": (1, True),
-          "p2_still": (2, False), "p2_moving": (2, True)}
+MODELS_DIR = ROOT / "models"
+ACTIVE_FILE = MODELS_DIR / "ACTIVE"  # name of the model hub.py loads
+# Set from the session's plan in main(): state -> (people, moving); EMPTY_STATE = baseline state.
+STATES: dict[str, tuple[int, bool]] = PLANS["room"][1]
+EMPTY_STATE = "empty"
 HOP_S = 0.5
 NODES_USED: tuple[int, ...] = feat.NODES  # set from session.json in main()
 
@@ -99,9 +102,13 @@ def main() -> None:
     args = ap.parse_args()
     sdir = SESSIONS_DIR / args.session
     meta = json.loads((sdir / "session.json").read_text())
-    global NODES_USED
+    global NODES_USED, STATES, EMPTY_STATE
     NODES_USED = tuple(r["node_id"] for r in meta.get("receivers", [])) or feat.NODES
-    print(f"receivers used for training: {NODES_USED}")
+    plan = meta.get("plan", "room")
+    STATES = PLANS[plan][1]
+    EMPTY_STATE = next(s for s, (n, _) in STATES.items() if n == 0)
+    model_name = f"{plan}_v1"
+    print(f"plan: {plan} | receivers: {NODES_USED} | baseline state: {EMPTY_STATE}")
 
     chunks = []
     for c in meta["chunks"]:
@@ -123,7 +130,7 @@ def main() -> None:
         te = [c for c in chunks if c["rep"] == test_rep]
         if not tr or not te:
             continue
-        base = baselines_from([c for c in tr if c["state"] == "empty"])
+        base = baselines_from([c for c in tr if c["state"] == EMPTY_STATE])
         xtr, ytr = dataset(tr, base)
         xte, yte = dataset(te, base)
         clf = make_clf().fit(xtr, ytr)
@@ -150,27 +157,31 @@ def main() -> None:
         print(f"  {l:>11s}" + "".join(f"{v:11d}" for v in row))
 
     # ---- final model on everything -----------------------------------------------------------
-    base = baselines_from([c for c in chunks if c["state"] == "empty"])
+    base = baselines_from([c for c in chunks if c["state"] == EMPTY_STATE])
     x, y = dataset(chunks, base)
     clf = make_clf().fit(x, y)
-    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    MODELS_DIR.mkdir(parents=True, exist_ok=True)
+    model_path = MODELS_DIR / f"{model_name}.pkl"
     trained_at = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
-    with open(MODEL_PATH, "wb") as f:
-        pickle.dump({"name": "auracare-state-v1", "clf": clf, "baselines": base,
+    with open(model_path, "wb") as f:
+        pickle.dump({"name": f"auracare-{model_name}", "plan": plan, "clf": clf, "baselines": base,
                      "nodes": NODES_USED, "feature_names": feat.feature_names(NODES_USED),
                      "state_map": STATES,
                      "trained_at": trained_at, "session": args.session, "cv": cv}, f)
-    (sdir / "model_report.json").write_text(json.dumps({"trained_at": trained_at, "cv": cv,
-                                                         "confusion": {"labels": labels, "matrix": cm.tolist()}},
+    ACTIVE_FILE.write_text(model_name)
+    (sdir / "model_report.json").write_text(json.dumps({"model": model_name, "trained_at": trained_at,
+                                                         "cv": cv, "confusion": {"labels": labels,
+                                                                                 "matrix": cm.tolist()}},
                                                         indent=2))
-    print(f"\nSaved {MODEL_PATH}")
+    print(f"\nSaved {model_path} and made it the active model (switch with: python use_model.py <name>)")
 
-    # ---- RuView's own activity classifier (empty / still / moving) ---------------------------
-    try:
-        r = post("http://127.0.0.1:3000/api/v1/adaptive/train", timeout=120)
-        print("RuView adaptive classifier:", json.dumps(r)[:400])
-    except Exception as e:
-        print(f"RuView adaptive training failed: {e}")
+    # ---- RuView's own activity classifier: only plans that recorded into RuView ---------------
+    if any(c.ruview_id for c in PLANS[plan][0]):
+        try:
+            r = post("http://127.0.0.1:3000/api/v1/adaptive/train", timeout=120)
+            print("RuView adaptive classifier:", json.dumps(r)[:400])
+        except Exception as e:
+            print(f"RuView adaptive training failed: {e}")
     try:
         print("Hub reload:", post("http://127.0.0.1:8770/v1/models/reload"))
     except Exception as e:
