@@ -61,6 +61,18 @@ class CsiPacket:
         imag, real = v[0:128:2], v[1:128:2]
         return np.sqrt(real * real + imag * imag)[VALID_POS]
 
+    def amplitudes104(self) -> np.ndarray:
+        """L-LTF (52) + HT-LTF (52) amplitudes. Non-HT packets repeat the L-LTF half."""
+        v = self.raw_int8().astype(np.float32)
+        if v.size < 128:
+            return np.zeros(104, np.float32)
+        ht = v[128:256] if v.size >= 256 else v[0:128]
+        out = []
+        for part in (v[0:128], ht):
+            imag, real = part[0::2], part[1::2]
+            out.append(np.sqrt(real * real + imag * imag)[VALID_POS])
+        return np.concatenate(out)
+
     def to_json(self, ts_unix: float) -> dict:
         return {
             "type": "auracare.csi", "v": 1, "ts_unix": round(ts_unix, 4),

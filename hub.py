@@ -67,7 +67,7 @@ class Node:
     def add(self, t: float, pkt: cf.CsiPacket) -> None:
         self.last_seen, self.rssi = t, pkt.rssi
         self.arrivals.append(t)
-        self.buf.append((t, pkt.amplitudes52(), pkt.rssi))
+        self.buf.append((t, pkt.amplitudes104(), pkt.rssi))  # [:52] = L-LTF
         while self.arrivals and self.arrivals[0] < t - 5.0:
             self.arrivals.popleft()
         while self.buf and self.buf[0][0] < t - 10.0:
@@ -82,7 +82,7 @@ class Node:
     def window(self, now: float, seconds: float):
         rows = [r for r in self.buf if r[0] >= now - seconds]
         if not rows:
-            return np.empty(0), np.empty((0, 52)), np.empty(0)
+            return np.empty(0), np.empty((0, 104)), np.empty(0)
         return (np.array([r[0] for r in rows]), np.stack([r[1] for r in rows]),
                 np.array([r[2] for r in rows], dtype=np.float64))
 
@@ -111,6 +111,60 @@ class Recorder:
                 "packets": {str(k): v for k, v in sorted(self.counts.items())}}
 
 
+class Occupancy:
+    """Remembers that someone is inside until there is evidence they LEFT.
+
+    The model judges each moment on its own, so a person who sits very still for a long
+    time can start to look like "nobody". But nobody can leave without moving: walking out
+    crosses the links. So "inside -> empty" needs movement first, then steady "nobody";
+    a long, confident "nobody" (EMPTY_TIMEOUT_S) clears it as a safety net.
+    """
+    ENTER_CONF, ENTER_S = 0.6, 2       # confident "someone" for 2 s -> occupied
+    EMPTY_CONF, EXIT_S = 0.7, 5        # P(nobody) >= 0.7 for 5 s right after movement -> left
+    MOTION_LOOKBACK_S = 15             # movement must have happened this recently
+    EMPTY_TIMEOUT_S = 600              # confident "nobody" for 10 min -> empty even without movement
+    SETTLE_S = 10                      # movement right after entering (sitting down) is not an exit
+
+    def __init__(self) -> None:
+        self.occupied, self.count = False, "0"
+        self.since = time.time()
+        self.enter_streak = 0
+        self.last_motion = 0.0
+        self.empty_since: float | None = None
+        self.reason = "start"
+
+    def update(self, now: float, people: dict) -> dict:
+        probs = people["probs"]
+        p0 = probs.get("0", 0.0)
+        best = people["count"]
+        if people["moving_prob"] >= MODEL_MOTION_THRESHOLD:
+            self.last_motion = now
+        if not self.occupied:
+            confident = best != "0" and probs.get(best, 0.0) >= self.ENTER_CONF
+            self.enter_streak = self.enter_streak + 1 if confident else 0
+            if self.enter_streak >= self.ENTER_S:
+                self.occupied, self.count, self.since, self.reason = True, best, now, "entered"
+                self.empty_since = None
+        else:
+            if best != "0" and probs.get(best, 0.0) >= self.ENTER_CONF:
+                self.count = best
+            self.empty_since = (self.empty_since or now) if p0 >= self.EMPTY_CONF else None
+            if self.empty_since is not None:
+                empty_for = now - self.empty_since
+                moved_before = (self.last_motion >= self.empty_since - self.MOTION_LOOKBACK_S
+                                and self.last_motion >= self.since + self.SETTLE_S)
+                if (moved_before and empty_for >= self.EXIT_S) or empty_for >= self.EMPTY_TIMEOUT_S:
+                    self.occupied, self.count, self.since = False, "0", now
+                    self.reason = "left (movement, then empty)" if moved_before else "timeout (long confident empty)"
+                    self.enter_streak = 0
+            if self.occupied and p0 >= self.EMPTY_CONF and now - self.last_motion > self.MOTION_LOOKBACK_S:
+                self.reason = "still inside (no movement seen, so nobody left)"
+            elif self.occupied and self.reason.startswith("still inside"):
+                self.reason = "inside"
+        return {"occupied": self.occupied, "count": self.count, "since": iso(self.since),
+                "seconds": int(now - self.since), "reason": self.reason}
+
+
 class Hub(asyncio.DatagramProtocol):
     def __init__(self, forward: tuple[str, int]):
         self.forward = forward
@@ -128,6 +182,7 @@ class Hub(asyncio.DatagramProtocol):
         self.event_clients: set[asyncio.Queue] = set()
         self.count_model: dict | None = None
         self.recent_probs: deque[np.ndarray] = deque(maxlen=3)
+        self.occupancy = Occupancy()
         self.activity ={"label": None, "confidence": None, "raw_label": None, "source": "ruview"}
         self.adaptive_loaded = False
         self.last_event: dict = {}
@@ -158,7 +213,7 @@ class Hub(asyncio.DatagramProtocol):
         if pkt is not None:
             self.nodes.setdefault(pkt.node_id, Node(pkt.node_id)).add(t, pkt)
             if self.cal_capture is not None and len(pkt.raw) >= 128:
-                self.cal_capture.setdefault(pkt.node_id, []).append(pkt.amplitudes52())
+                self.cal_capture.setdefault(pkt.node_id, []).append(pkt.amplitudes104())
             if self.csi_clients:
                 msg = json.dumps(pkt.to_json(t), separators=(",", ":"))
                 for q in list(self.csi_clients):
@@ -180,6 +235,8 @@ class Hub(asyncio.DatagramProtocol):
             with open(path, "rb") as f:
                 self.count_model = pickle.load(f)
             self.recent_probs.clear()
+            if hasattr(self, "occupancy"):
+                self.occupancy = Occupancy()
 
     def people(self, now: float) -> dict | None:
         """Room state from our model: people 0/1/2 and moving, averaged over the last 3 s."""
@@ -187,7 +244,12 @@ class Hub(asyncio.DatagramProtocol):
         if m is None:
             return None
         nodes = tuple(m.get("nodes", feat.NODES))
-        window = {n: self.nodes[n].window(now, feat.WINDOW_S) for n in nodes if n in self.nodes}
+        win_s, width = m.get("window_s", feat.WINDOW_S), (104 if m.get("amp_mode") == "lltf_ht" else 52)
+        window = {}
+        for n in nodes:
+            if n in self.nodes:
+                t_, a_, r_ = self.nodes[n].window(now, win_s)
+                window[n] = (t_, a_[:, :width] if a_.ndim == 2 else a_, r_)
         x = feat.window_features(window, m["baselines"], nodes).reshape(1, -1)
         self.recent_probs.append(m["clf"].predict_proba(x)[0])
         probs = np.mean(self.recent_probs, axis=0)
@@ -245,6 +307,7 @@ class Hub(asyncio.DatagramProtocol):
                 "presence": None,
             }
         people = self.people(now)
+        occupancy = self.occupancy.update(now, people) if people is not None else None
         if people is not None:
             # Room-trained model: P(moving) is the calibrated movement score.
             presence = people["count"] != "0"
@@ -264,6 +327,7 @@ class Hub(asyncio.DatagramProtocol):
                        "score": round(score, 3), "threshold": threshold, "source": source,
                        "firmware_per_node": firmware},
             "presence": presence,
+            "occupancy": occupancy,
         }
 
 
@@ -369,7 +433,8 @@ def make_app(hub: Hub) -> web.Application:
         if short:
             return web.json_response({"error": f"too few packets from nodes {short}; nothing changed",
                                       "packets": {str(n): len(cap.get(n, [])) for n in nodes}}, status=422)
-        new = {n: feat.node_baseline(np.stack(cap[n])) for n in nodes}
+        width = 104 if hub.count_model.get("amp_mode") == "lltf_ht" else 52
+        new = {n: feat.node_baseline(np.stack(cap[n])[:, :width]) for n in nodes}
         old = hub.count_model["baselines"]
         shift = {str(n): round(float(np.linalg.norm(new[n] - old[n])), 3) for n in nodes if n in old}
         hub.count_model["baselines"] = new

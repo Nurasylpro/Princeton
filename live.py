@@ -27,9 +27,11 @@ while True:
             line = "no trained model loaded (run train_model.py)"
         else:
             bar = "#" * int(20 * e["motion"]["score"])
-            line = (f"{STATE_TEXT.get(p['state'], p['state']):<18} "
+            o = e.get("occupancy") or {}
+            occ = (f"OCCUPIED ({o['count']}) {o['seconds']:>4}s" if o.get("occupied") else f"EMPTY {o.get('seconds', 0):>4}s")
+            line = (f"{occ:<20} | model: {STATE_TEXT.get(p['state'], p['state']):<18} "
                     f"people={p['count']} ({p['probs'].get(p['count'], 0):.0%})  "
-                    f"moving={p['moving_prob']:.0%} [{bar:<20}]")
+                    f"moving={p['moving_prob']:.0%} [{bar:<20}]  {o.get('reason', '')}")
         print(time.strftime("%H:%M:%S"), line, flush=True)
     except Exception as ex:
         print(time.strftime("%H:%M:%S"), f"hub not reachable: {ex}", flush=True)
