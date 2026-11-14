@@ -257,7 +257,7 @@ def main() -> None:
                 print()
                 result = record_chunk(chunk, session, voice)
                 pk = result["packets"]
-                low = [str(n) for n in NODES if pk.get(str(n), 0) < 30 * CHUNK_S]
+                low = [str(n) for n in NODES if pk.get(str(n), 0) < 20 * CHUNK_S]
                 print(f"  packets per board: {pk}" + (f"   WARNING: low on ESP {', '.join(low)}" if low else ""))
                 if input("  [Enter] keep and continue, [r] redo this chunk: ").strip().lower() != "r":
                     break
