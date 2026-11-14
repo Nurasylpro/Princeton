@@ -123,6 +123,7 @@ class Occupancy:
     EMPTY_CONF, EXIT_S = 0.7, 5        # P(nobody) >= 0.7 for 5 s right after movement -> left
     MOTION_LOOKBACK_S = 15             # movement must have happened this recently
     EMPTY_TIMEOUT_S = 600              # confident "nobody" for 10 min -> empty even without movement
+    EXIT_GAP_S = 3                     # 'nobody' must start within 3 s of the movement
     SETTLE_S = 10                      # movement right after entering (sitting down) is not an exit
 
     def __init__(self) -> None:
@@ -151,7 +152,9 @@ class Occupancy:
             self.empty_since = (self.empty_since or now) if p0 >= self.EMPTY_CONF else None
             if self.empty_since is not None:
                 empty_for = now - self.empty_since
-                moved_before = (self.last_motion >= self.empty_since - self.MOTION_LOOKBACK_S
+                # "Left" = movement that runs DIRECTLY into "nobody" (walking out of the links).
+                # Moving, then sitting still, shows "1 still" in between, so it is not an exit.
+                moved_before = (self.empty_since - self.EXIT_GAP_S <= self.last_motion
                                 and self.last_motion >= self.since + self.SETTLE_S)
                 if (moved_before and empty_for >= self.EXIT_S) or empty_for >= self.EMPTY_TIMEOUT_S:
                     self.occupied, self.count, self.since = False, "0", now
