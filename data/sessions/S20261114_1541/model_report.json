@@ -1,0 +1,56 @@
+{
+  "trained_at": "2026-11-14T21:05:21Z",
+  "cv": {
+    "windows": 1150,
+    "state_accuracy": 0.839,
+    "people_count_accuracy": 0.917,
+    "moving_accuracy": 0.907,
+    "presence_accuracy": 0.92
+  },
+  "confusion": {
+    "labels": [
+      "empty",
+      "p1_still",
+      "p1_moving",
+      "p2_still",
+      "p2_moving"
+    ],
+    "matrix": [
+      [
+        215,
+        4,
+        11,
+        0,
+        0
+      ],
+      [
+        70,
+        97,
+        63,
+        0,
+        0
+      ],
+      [
+        7,
+        9,
+        214,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        224,
+        6
+      ],
+      [
+        0,
+        0,
+        4,
+        11,
+        215
+      ]
+    ]
+  }
+}

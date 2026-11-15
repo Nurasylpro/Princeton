@@ -55,4 +55,4 @@ python calibrate.py         # empty room, nobody inside
 open http://localhost:8770  # dashboard
 ```
 
-The recorded data (`data/`, about 900 MB) is not in this repo.
+Recordings are in `data/`: `data/sessions/` holds our sessions (raw + decoded CSI, labels in session.json) and `data/ruview/recordings/` holds RuView's copy of the first session.

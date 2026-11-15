@@ -1,0 +1,91 @@
+{
+  "session": "H20261114_1645",
+  "plan": "hall",
+  "created_iso": "2026-11-14T21:45:32.118Z",
+  "room": {
+    "size_m": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "door": "keep the same (open/closed) for recording and demo"
+  },
+  "transmitter": {
+    "name": "iPhone 15 Pro hotspot (transmitter)",
+    "pos_m": [
+      1.25,
+      1.25,
+      0.76
+    ]
+  },
+  "receivers": [
+    {
+      "node_id": 2,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        0.2,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    },
+    {
+      "node_id": 3,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        2.3,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    }
+  ],
+  "zone": "people counted only INSIDE the taped triangle formed by the iPhone and the receivers; normal crowd outside, kept >= 1 m from the tape",
+  "radio": {
+    "channel": 6,
+    "bandwidth_mhz": 20,
+    "csi": "HT: 256 int8 = L-LTF[0:128] + HT-LTF[128:256], [imag, real] pairs",
+    "nominal_rate_hz": "~30-45 per node (firmware cap 50), uneven: use ts_unix and seq"
+  },
+  "firmware": "RuView esp32-csi-node 0.8.18, local branch esp32-classic",
+  "chunks": [
+    {
+      "id": "in0_1",
+      "people": 0,
+      "state": "in0",
+      "say": "Nobody inside the triangle. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794692739.201,
+      "end_unix": 1794692799.223,
+      "start_iso": "2026-11-14T21:45:39.200Z",
+      "end_iso": "2026-11-14T21:46:39.223Z",
+      "packets": {
+        "1": 169,
+        "2": 1695,
+        "3": 1727
+      },
+      "actions": []
+    },
+    {
+      "id": "in0_2",
+      "people": 0,
+      "state": "in0",
+      "say": "Nobody inside the triangle. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794692810.754,
+      "end_unix": 1794692870.78,
+      "start_iso": "2026-11-14T21:46:50.754Z",
+      "end_iso": "2026-11-14T21:47:50.779Z",
+      "packets": {
+        "1": 112,
+        "2": 1720,
+        "3": 1747
+      },
+      "actions": []
+    }
+  ]
+}

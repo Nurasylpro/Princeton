@@ -1,0 +1,87 @@
+{
+  "model": "hall_v1",
+  "trained_at": "2026-11-14T22:24:34Z",
+  "cv": {
+    "windows": 1610,
+    "state_accuracy": 0.658,
+    "people_count_accuracy": 0.661,
+    "moving_accuracy": 0.946,
+    "presence_accuracy": 0.992
+  },
+  "confusion": {
+    "labels": [
+      "in0",
+      "in1_still",
+      "in1_moving",
+      "in2_still",
+      "in2_moving",
+      "in3p_still",
+      "in3p_moving"
+    ],
+    "matrix": [
+      [
+        230,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        218,
+        5,
+        0,
+        0,
+        5,
+        0
+      ],
+      [
+        0,
+        0,
+        199,
+        6,
+        12,
+        0,
+        13
+      ],
+      [
+        0,
+        34,
+        59,
+        128,
+        0,
+        9,
+        0
+      ],
+      [
+        0,
+        0,
+        27,
+        0,
+        125,
+        0,
+        78
+      ],
+      [
+        11,
+        175,
+        17,
+        3,
+        0,
+        24,
+        0
+      ],
+      [
+        0,
+        0,
+        24,
+        0,
+        71,
+        0,
+        135
+      ]
+    ]
+  }
+}

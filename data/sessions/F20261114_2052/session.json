@@ -1,0 +1,691 @@
+{
+  "session": "F20261114_2052",
+  "plan": "fall",
+  "created_iso": "2026-11-15T01:52:40.150Z",
+  "room": {
+    "size_m": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "door": "keep the same (open/closed) for recording and demo"
+  },
+  "transmitter": {
+    "name": "iPhone 15 Pro hotspot (transmitter)",
+    "pos_m": [
+      1.25,
+      1.25,
+      0.76
+    ]
+  },
+  "receivers": [
+    {
+      "node_id": 2,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        0.2,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    },
+    {
+      "node_id": 3,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        2.3,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    }
+  ],
+  "zone": null,
+  "radio": {
+    "channel": 6,
+    "bandwidth_mhz": 20,
+    "csi": "HT: 256 int8 = L-LTF[0:128] + HT-LTF[128:256], [imag, real] pairs",
+    "nominal_rate_hz": "~30-45 per node (firmware cap 50), uneven: use ts_unix and seq"
+  },
+  "firmware": "RuView esp32-csi-node 0.8.18, local branch esp32-classic",
+  "chunks": [
+    {
+      "id": "fall_1",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing next to the mat. On 'fall', fall onto the mat and lie still; on 'get up', stand up and stay still. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794707568.447,
+      "end_unix": 1794707628.486,
+      "start_iso": "2026-11-15T01:52:48.447Z",
+      "end_iso": "2026-11-15T01:53:48.485Z",
+      "packets": {
+        "2": 1406,
+        "3": 1353
+      },
+      "actions": [
+        {
+          "t_unix": 1794707571.45,
+          "t_iso": "2026-11-15T01:52:51.449Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707581.097,
+          "t_iso": "2026-11-15T01:53:01.096Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794707591.235,
+          "t_iso": "2026-11-15T01:53:11.234Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707600.918,
+          "t_iso": "2026-11-15T01:53:20.917Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794707611.687,
+          "t_iso": "2026-11-15T01:53:31.687Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707622.357,
+          "t_iso": "2026-11-15T01:53:42.356Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_2",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing next to the mat. On 'fall', fall onto the mat and lie still; on 'get up', stand up and stay still. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794707697.827,
+      "end_unix": 1794707757.854,
+      "start_iso": "2026-11-15T01:54:57.826Z",
+      "end_iso": "2026-11-15T01:55:57.853Z",
+      "packets": {
+        "2": 1625,
+        "3": 1416
+      },
+      "actions": [
+        {
+          "t_unix": 1794707700.866,
+          "t_iso": "2026-11-15T01:55:00.866Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707711.218,
+          "t_iso": "2026-11-15T01:55:11.217Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794707721.688,
+          "t_iso": "2026-11-15T01:55:21.688Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707732.27,
+          "t_iso": "2026-11-15T01:55:32.270Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794707742.467,
+          "t_iso": "2026-11-15T01:55:42.467Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707752.206,
+          "t_iso": "2026-11-15T01:55:52.205Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_3",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing next to the mat. On 'fall', fall onto the mat and lie still; on 'get up', stand up and stay still. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794707776.806,
+      "end_unix": 1794707836.846,
+      "start_iso": "2026-11-15T01:56:16.805Z",
+      "end_iso": "2026-11-15T01:57:16.846Z",
+      "packets": {
+        "2": 1685,
+        "3": 1573
+      },
+      "actions": [
+        {
+          "t_unix": 1794707779.808,
+          "t_iso": "2026-11-15T01:56:19.808Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707789.239,
+          "t_iso": "2026-11-15T01:56:29.239Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794707800.214,
+          "t_iso": "2026-11-15T01:56:40.213Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707809.672,
+          "t_iso": "2026-11-15T01:56:49.672Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794707818.942,
+          "t_iso": "2026-11-15T01:56:58.941Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794707828.117,
+          "t_iso": "2026-11-15T01:57:08.116Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_4",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing next to the mat. On 'fall', fall onto the mat and lie still; on 'get up', stand up and stay still. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794708342.179,
+      "end_unix": 1794708402.219,
+      "start_iso": "2026-11-15T02:05:42.179Z",
+      "end_iso": "2026-11-15T02:06:42.218Z",
+      "packets": {
+        "2": 1800,
+        "3": 1620
+      },
+      "actions": [
+        {
+          "t_unix": 1794708345.228,
+          "t_iso": "2026-11-15T02:05:45.228Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794708355.506,
+          "t_iso": "2026-11-15T02:05:55.506Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794708366.358,
+          "t_iso": "2026-11-15T02:06:06.357Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794708375.754,
+          "t_iso": "2026-11-15T02:06:15.754Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794708386.704,
+          "t_iso": "2026-11-15T02:06:26.703Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794708396.299,
+          "t_iso": "2026-11-15T02:06:36.298Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "sit_fast_1",
+      "people": 1,
+      "state": "sit_fast",
+      "say": "One person next to the chair. Sit down QUICKLY on 'sit down', stand on 'stand up'.",
+      "ruview_id": null,
+      "prompts": [
+        "sit down",
+        "stand up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        6.0,
+        8.0
+      ],
+      "start_unix": 1794708442.142,
+      "end_unix": 1794708502.174,
+      "start_iso": "2026-11-15T02:07:22.142Z",
+      "end_iso": "2026-11-15T02:08:22.173Z",
+      "packets": {
+        "2": 1762,
+        "3": 1512
+      },
+      "actions": [
+        {
+          "t_unix": 1794708445.147,
+          "t_iso": "2026-11-15T02:07:25.147Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708452.08,
+          "t_iso": "2026-11-15T02:07:32.080Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708458.951,
+          "t_iso": "2026-11-15T02:07:38.951Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708466.82,
+          "t_iso": "2026-11-15T02:07:46.820Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708474.727,
+          "t_iso": "2026-11-15T02:07:54.726Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708481.493,
+          "t_iso": "2026-11-15T02:08:01.492Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708487.79,
+          "t_iso": "2026-11-15T02:08:07.789Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708494.722,
+          "t_iso": "2026-11-15T02:08:14.721Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        }
+      ]
+    },
+    {
+      "id": "sit_fast_2",
+      "people": 1,
+      "state": "sit_fast",
+      "say": "One person next to the chair. Sit down QUICKLY on 'sit down', stand on 'stand up'.",
+      "ruview_id": null,
+      "prompts": [
+        "sit down",
+        "stand up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        6.0,
+        8.0
+      ],
+      "start_unix": 1794708517.009,
+      "end_unix": 1794708577.02,
+      "start_iso": "2026-11-15T02:08:37.008Z",
+      "end_iso": "2026-11-15T02:09:37.019Z",
+      "packets": {
+        "2": 1819,
+        "3": 1483
+      },
+      "actions": [
+        {
+          "t_unix": 1794708520.012,
+          "t_iso": "2026-11-15T02:08:40.011Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708527.712,
+          "t_iso": "2026-11-15T02:08:47.711Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708535.113,
+          "t_iso": "2026-11-15T02:08:55.112Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708541.328,
+          "t_iso": "2026-11-15T02:09:01.327Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708548.98,
+          "t_iso": "2026-11-15T02:09:08.979Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708556.079,
+          "t_iso": "2026-11-15T02:09:16.078Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708562.837,
+          "t_iso": "2026-11-15T02:09:22.836Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794708569.393,
+          "t_iso": "2026-11-15T02:09:29.392Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        }
+      ]
+    },
+    {
+      "id": "lie_slow_1",
+      "people": 1,
+      "state": "lie_slow",
+      "say": "One person next to the mat. On 'lie down', lie down SLOWLY and calmly; on 'get up', stand up.",
+      "ruview_id": null,
+      "prompts": [
+        "lie down",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794708605.09,
+      "end_unix": 1794708665.13,
+      "start_iso": "2026-11-15T02:10:05.089Z",
+      "end_iso": "2026-11-15T02:11:05.129Z",
+      "packets": {
+        "2": 1704,
+        "3": 1550
+      },
+      "actions": [
+        {
+          "t_unix": 1794708608.113,
+          "t_iso": "2026-11-15T02:10:08.112Z",
+          "action": "lie_down",
+          "spoken": "lie down"
+        },
+        {
+          "t_unix": 1794708618.792,
+          "t_iso": "2026-11-15T02:10:18.791Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794708629.562,
+          "t_iso": "2026-11-15T02:10:29.561Z",
+          "action": "lie_down",
+          "spoken": "lie down"
+        },
+        {
+          "t_unix": 1794708639.561,
+          "t_iso": "2026-11-15T02:10:39.560Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794708648.847,
+          "t_iso": "2026-11-15T02:10:48.846Z",
+          "action": "lie_down",
+          "spoken": "lie down"
+        },
+        {
+          "t_unix": 1794708658.455,
+          "t_iso": "2026-11-15T02:10:58.455Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "lie_slow_2",
+      "people": 1,
+      "state": "lie_slow",
+      "say": "One person next to the mat. On 'lie down', lie down SLOWLY and calmly; on 'get up', stand up.",
+      "ruview_id": null,
+      "prompts": [
+        "lie down",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794708694.141,
+      "end_unix": 1794708754.187,
+      "start_iso": "2026-11-15T02:11:34.140Z",
+      "end_iso": "2026-11-15T02:12:34.186Z",
+      "packets": {
+        "2": 1651,
+        "3": 1413
+      },
+      "actions": [
+        {
+          "t_unix": 1794708697.173,
+          "t_iso": "2026-11-15T02:11:37.173Z",
+          "action": "lie_down",
+          "spoken": "lie down"
+        },
+        {
+          "t_unix": 1794708707.628,
+          "t_iso": "2026-11-15T02:11:47.627Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794708717.469,
+          "t_iso": "2026-11-15T02:11:57.469Z",
+          "action": "lie_down",
+          "spoken": "lie down"
+        },
+        {
+          "t_unix": 1794708726.789,
+          "t_iso": "2026-11-15T02:12:06.788Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794708736.862,
+          "t_iso": "2026-11-15T02:12:16.861Z",
+          "action": "lie_down",
+          "spoken": "lie down"
+        },
+        {
+          "t_unix": 1794708745.927,
+          "t_iso": "2026-11-15T02:12:25.927Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "pick_up_1",
+      "people": 1,
+      "state": "pick_up",
+      "say": "One person standing. On 'pick up', bend down and pick something up from the floor; on 'stand up', stand still.",
+      "ruview_id": null,
+      "prompts": [
+        "pick up",
+        "stand up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        6.0,
+        8.0
+      ],
+      "start_unix": 1794708774.402,
+      "end_unix": 1794708834.436,
+      "start_iso": "2026-11-15T02:12:54.402Z",
+      "end_iso": "2026-11-15T02:13:54.436Z",
+      "packets": {
+        "2": 1598,
+        "3": 1420
+      },
+      "actions": [
+        {
+          "t_unix": 1794708777.424,
+          "t_iso": "2026-11-15T02:12:57.423Z",
+          "action": "pick_up",
+          "spoken": "pick up"
+        },
+        {
+          "t_unix": 1794708783.534,
+          "t_iso": "2026-11-15T02:13:03.533Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708789.984,
+          "t_iso": "2026-11-15T02:13:09.984Z",
+          "action": "pick_up",
+          "spoken": "pick up"
+        },
+        {
+          "t_unix": 1794708797.13,
+          "t_iso": "2026-11-15T02:13:17.130Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708804.235,
+          "t_iso": "2026-11-15T02:13:24.234Z",
+          "action": "pick_up",
+          "spoken": "pick up"
+        },
+        {
+          "t_unix": 1794708811.053,
+          "t_iso": "2026-11-15T02:13:31.052Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794708818.278,
+          "t_iso": "2026-11-15T02:13:38.278Z",
+          "action": "pick_up",
+          "spoken": "pick up"
+        },
+        {
+          "t_unix": 1794708824.49,
+          "t_iso": "2026-11-15T02:13:44.490Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        }
+      ]
+    },
+    {
+      "id": "still_1",
+      "people": 1,
+      "state": "still",
+      "say": "One person inside. Stand or sit quietly.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "prompt_gap": [
+        5.0,
+        7.0
+      ],
+      "start_unix": 1794708850.018,
+      "end_unix": 1794708910.043,
+      "start_iso": "2026-11-15T02:14:10.017Z",
+      "end_iso": "2026-11-15T02:15:10.042Z",
+      "packets": {
+        "2": 1590,
+        "3": 1699
+      },
+      "actions": []
+    },
+    {
+      "id": "walk_1",
+      "people": 1,
+      "state": "walk",
+      "say": "One person inside. Walk around inside the triangle.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "prompt_gap": [
+        5.0,
+        7.0
+      ],
+      "start_unix": 1794708928.477,
+      "end_unix": 1794708988.516,
+      "start_iso": "2026-11-15T02:15:28.477Z",
+      "end_iso": "2026-11-15T02:16:28.516Z",
+      "packets": {
+        "2": 1777,
+        "3": 1571
+      },
+      "actions": []
+    }
+  ]
+}

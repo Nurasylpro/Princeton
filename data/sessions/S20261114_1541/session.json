@@ -1,0 +1,464 @@
+{
+  "session": "S20261114_1541",
+  "created_iso": "2026-11-14T20:41:45.635Z",
+  "room": {
+    "size_m": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "door": "keep the same (open/closed) for recording and demo"
+  },
+  "transmitter": {
+    "name": "iPhone 15 Pro hotspot (transmitter)",
+    "pos_m": [
+      1.25,
+      1.25,
+      0.76
+    ]
+  },
+  "receivers": [
+    {
+      "node_id": 2,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        0.2,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    },
+    {
+      "node_id": 3,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        2.3,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    }
+  ],
+  "radio": {
+    "channel": 6,
+    "bandwidth_mhz": 20,
+    "csi": "L-LTF, 64 subcarriers, 128 int8 [imag, real]",
+    "nominal_rate_hz": "~45 per node (firmware cap 50), uneven: use ts_unix and seq"
+  },
+  "firmware": "RuView esp32-csi-node 0.8.18, local branch esp32-classic",
+  "chunks": [
+    {
+      "id": "empty_1",
+      "people": 0,
+      "state": "empty",
+      "say": "Nobody in the room.",
+      "ruview_id": "train_empty_1",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794688923.467,
+      "end_unix": 1794688983.498,
+      "start_iso": "2026-11-14T20:42:03.466Z",
+      "end_iso": "2026-11-14T20:43:03.497Z",
+      "packets": {
+        "2": 1772,
+        "3": 1769
+      },
+      "actions": []
+    },
+    {
+      "id": "empty_2",
+      "people": 0,
+      "state": "empty",
+      "say": "Nobody in the room.",
+      "ruview_id": "train_empty_2",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689040.628,
+      "end_unix": 1794689100.63,
+      "start_iso": "2026-11-14T20:44:00.628Z",
+      "end_iso": "2026-11-14T20:45:00.629Z",
+      "packets": {
+        "2": 1784,
+        "3": 1752
+      },
+      "actions": []
+    },
+    {
+      "id": "p1_still_1",
+      "people": 1,
+      "state": "p1_still",
+      "say": "One person. Sit quietly on the chair.",
+      "ruview_id": "train_still_p1_1",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689166.207,
+      "end_unix": 1794689226.232,
+      "start_iso": "2026-11-14T20:46:06.207Z",
+      "end_iso": "2026-11-14T20:47:06.231Z",
+      "packets": {
+        "2": 1758,
+        "3": 1732
+      },
+      "actions": []
+    },
+    {
+      "id": "p1_still_2",
+      "people": 1,
+      "state": "p1_still",
+      "say": "One person. Stand quietly.",
+      "ruview_id": "train_still_p1_2",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689239.025,
+      "end_unix": 1794689299.039,
+      "start_iso": "2026-11-14T20:47:19.025Z",
+      "end_iso": "2026-11-14T20:48:19.038Z",
+      "packets": {
+        "2": 1827,
+        "3": 1785
+      },
+      "actions": []
+    },
+    {
+      "id": "p1_moving_1",
+      "people": 1,
+      "state": "p1_moving",
+      "say": "One person. Walk around, turn, wave your arms.",
+      "ruview_id": "train_moving_p1_1",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689316.257,
+      "end_unix": 1794689376.294,
+      "start_iso": "2026-11-14T20:48:36.256Z",
+      "end_iso": "2026-11-14T20:49:36.294Z",
+      "packets": {
+        "2": 1732,
+        "3": 1663
+      },
+      "actions": []
+    },
+    {
+      "id": "p1_moving_2",
+      "people": 1,
+      "state": "p1_moving",
+      "say": "One person. Keep moving: walk, turn, wave.",
+      "ruview_id": "train_moving_p1_2",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689398.182,
+      "end_unix": 1794689458.215,
+      "start_iso": "2026-11-14T20:49:58.181Z",
+      "end_iso": "2026-11-14T20:50:58.214Z",
+      "packets": {
+        "2": 1839,
+        "3": 1813
+      },
+      "actions": []
+    },
+    {
+      "id": "p2_still_1",
+      "people": 2,
+      "state": "p2_still",
+      "say": "Two people. Both sit or stand quietly.",
+      "ruview_id": "train_still_p2_1",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689499.911,
+      "end_unix": 1794689559.918,
+      "start_iso": "2026-11-14T20:51:39.911Z",
+      "end_iso": "2026-11-14T20:52:39.918Z",
+      "packets": {
+        "2": 1820,
+        "3": 1813
+      },
+      "actions": []
+    },
+    {
+      "id": "p2_still_2",
+      "people": 2,
+      "state": "p2_still",
+      "say": "Two people. Both stay still, swap positions first.",
+      "ruview_id": "train_still_p2_2",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689573.516,
+      "end_unix": 1794689633.558,
+      "start_iso": "2026-11-14T20:52:53.516Z",
+      "end_iso": "2026-11-14T20:53:53.557Z",
+      "packets": {
+        "2": 1677,
+        "3": 1746
+      },
+      "actions": []
+    },
+    {
+      "id": "p2_moving_1",
+      "people": 2,
+      "state": "p2_moving",
+      "say": "Two people. Both move around.",
+      "ruview_id": "train_moving_p2_1",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689645.581,
+      "end_unix": 1794689705.628,
+      "start_iso": "2026-11-14T20:54:05.581Z",
+      "end_iso": "2026-11-14T20:55:05.628Z",
+      "packets": {
+        "2": 1603,
+        "3": 1753
+      },
+      "actions": []
+    },
+    {
+      "id": "p2_moving_2",
+      "people": 2,
+      "state": "p2_moving",
+      "say": "Two people. Both keep moving.",
+      "ruview_id": "train_moving_p2_2",
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794689717.929,
+      "end_unix": 1794689777.939,
+      "start_iso": "2026-11-14T20:55:17.929Z",
+      "end_iso": "2026-11-14T20:56:17.938Z",
+      "packets": {
+        "2": 1736,
+        "3": 1775
+      },
+      "actions": []
+    },
+    {
+      "id": "p1_sitstand_1",
+      "people": 1,
+      "state": "p1_sitstand",
+      "say": "One person, standing next to the chair. Follow the commands.",
+      "ruview_id": null,
+      "prompts": [
+        "sit down",
+        "stand up"
+      ],
+      "teammates_block": true,
+      "start_unix": 1794689825.237,
+      "end_unix": 1794689885.273,
+      "start_iso": "2026-11-14T20:57:05.236Z",
+      "end_iso": "2026-11-14T20:58:05.272Z",
+      "packets": {
+        "2": 1728,
+        "3": 1624
+      },
+      "actions": [
+        {
+          "t_unix": 1794689828.256,
+          "t_iso": "2026-11-14T20:57:08.255Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689834.395,
+          "t_iso": "2026-11-14T20:57:14.395Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689839.571,
+          "t_iso": "2026-11-14T20:57:19.571Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689845.227,
+          "t_iso": "2026-11-14T20:57:25.226Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689851.017,
+          "t_iso": "2026-11-14T20:57:31.016Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689856.749,
+          "t_iso": "2026-11-14T20:57:36.749Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689863.036,
+          "t_iso": "2026-11-14T20:57:43.035Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689868.61,
+          "t_iso": "2026-11-14T20:57:48.610Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689875.209,
+          "t_iso": "2026-11-14T20:57:55.209Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        }
+      ]
+    },
+    {
+      "id": "p1_sitstand_2",
+      "people": 1,
+      "state": "p1_sitstand",
+      "say": "One person, standing next to the chair. Follow the commands.",
+      "ruview_id": null,
+      "prompts": [
+        "sit down",
+        "stand up"
+      ],
+      "teammates_block": true,
+      "start_unix": 1794689900.756,
+      "end_unix": 1794689960.806,
+      "start_iso": "2026-11-14T20:58:20.755Z",
+      "end_iso": "2026-11-14T20:59:20.805Z",
+      "packets": {
+        "2": 1723,
+        "3": 1680
+      },
+      "actions": [
+        {
+          "t_unix": 1794689903.801,
+          "t_iso": "2026-11-14T20:58:23.800Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689908.983,
+          "t_iso": "2026-11-14T20:58:28.983Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689914.757,
+          "t_iso": "2026-11-14T20:58:34.756Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689920.545,
+          "t_iso": "2026-11-14T20:58:40.545Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689925.756,
+          "t_iso": "2026-11-14T20:58:45.756Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689931.874,
+          "t_iso": "2026-11-14T20:58:51.874Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689937.409,
+          "t_iso": "2026-11-14T20:58:57.409Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689942.696,
+          "t_iso": "2026-11-14T20:59:02.695Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        },
+        {
+          "t_unix": 1794689949.439,
+          "t_iso": "2026-11-14T20:59:09.438Z",
+          "action": "sit_down",
+          "spoken": "sit down"
+        },
+        {
+          "t_unix": 1794689954.763,
+          "t_iso": "2026-11-14T20:59:14.763Z",
+          "action": "stand_up",
+          "spoken": "stand up"
+        }
+      ]
+    },
+    {
+      "id": "p1_jump_1",
+      "people": 1,
+      "state": "p1_jump",
+      "say": "One person, standing. Jump once on each command.",
+      "ruview_id": null,
+      "prompts": [
+        "jump"
+      ],
+      "teammates_block": true,
+      "start_unix": 1794689994.332,
+      "end_unix": 1794690054.365,
+      "start_iso": "2026-11-14T20:59:54.332Z",
+      "end_iso": "2026-11-14T21:00:54.365Z",
+      "packets": {
+        "2": 1790,
+        "3": 1647
+      },
+      "actions": [
+        {
+          "t_unix": 1794689997.376,
+          "t_iso": "2026-11-14T20:59:57.376Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690002.397,
+          "t_iso": "2026-11-14T21:00:02.396Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690008.888,
+          "t_iso": "2026-11-14T21:00:08.887Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690015.446,
+          "t_iso": "2026-11-14T21:00:15.445Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690021.911,
+          "t_iso": "2026-11-14T21:00:21.911Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690027.19,
+          "t_iso": "2026-11-14T21:00:27.189Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690032.902,
+          "t_iso": "2026-11-14T21:00:32.902Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690038.23,
+          "t_iso": "2026-11-14T21:00:38.229Z",
+          "action": "jump",
+          "spoken": "jump"
+        },
+        {
+          "t_unix": 1794690045.089,
+          "t_iso": "2026-11-14T21:00:45.089Z",
+          "action": "jump",
+          "spoken": "jump"
+        }
+      ]
+    }
+  ]
+}

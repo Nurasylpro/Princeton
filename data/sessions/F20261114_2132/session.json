@@ -1,0 +1,491 @@
+{
+  "session": "F20261114_2132",
+  "plan": "fallstill",
+  "created_iso": "2026-11-15T02:32:35.852Z",
+  "room": {
+    "size_m": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "door": "keep the same (open/closed) for recording and demo"
+  },
+  "transmitter": {
+    "name": "iPhone 15 Pro hotspot (transmitter)",
+    "pos_m": [
+      1.25,
+      1.25,
+      0.76
+    ]
+  },
+  "receivers": [
+    {
+      "node_id": 2,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        0.2,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    },
+    {
+      "node_id": 3,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        2.3,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    }
+  ],
+  "zone": null,
+  "radio": {
+    "channel": 6,
+    "bandwidth_mhz": 20,
+    "csi": "HT: 256 int8 = L-LTF[0:128] + HT-LTF[128:256], [imag, real] pairs",
+    "nominal_rate_hz": "~30-45 per node (firmware cap 50), uneven: use ts_unix and seq"
+  },
+  "firmware": "RuView esp32-csi-node 0.8.18, local branch esp32-classic",
+  "chunks": [
+    {
+      "id": "fall_1",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing still next to the mat. On 'fall', fall onto the mat and stay down until 'get up'; then stand still again. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794709978.768,
+      "end_unix": 1794710038.814,
+      "start_iso": "2026-11-15T02:32:58.767Z",
+      "end_iso": "2026-11-15T02:33:58.813Z",
+      "packets": {
+        "2": 1796,
+        "3": 1644
+      },
+      "actions": [
+        {
+          "t_unix": 1794709981.81,
+          "t_iso": "2026-11-15T02:33:01.810Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794709991.381,
+          "t_iso": "2026-11-15T02:33:11.381Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710000.423,
+          "t_iso": "2026-11-15T02:33:20.423Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710010.487,
+          "t_iso": "2026-11-15T02:33:30.487Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710020.142,
+          "t_iso": "2026-11-15T02:33:40.141Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710029.21,
+          "t_iso": "2026-11-15T02:33:49.209Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_2",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing still next to the mat. On 'fall', fall onto the mat and stay down until 'get up'; then stand still again. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794710050.988,
+      "end_unix": 1794710110.99,
+      "start_iso": "2026-11-15T02:34:10.987Z",
+      "end_iso": "2026-11-15T02:35:10.990Z",
+      "packets": {
+        "2": 1700,
+        "3": 1544
+      },
+      "actions": [
+        {
+          "t_unix": 1794710053.994,
+          "t_iso": "2026-11-15T02:34:13.994Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710063.751,
+          "t_iso": "2026-11-15T02:34:23.750Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710073.163,
+          "t_iso": "2026-11-15T02:34:33.162Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710082.865,
+          "t_iso": "2026-11-15T02:34:42.865Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710092.734,
+          "t_iso": "2026-11-15T02:34:52.734Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710103.06,
+          "t_iso": "2026-11-15T02:35:03.060Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_3",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing still next to the mat. On 'fall', fall onto the mat and stay down until 'get up'; then stand still again. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794710121.726,
+      "end_unix": 1794710181.766,
+      "start_iso": "2026-11-15T02:35:21.726Z",
+      "end_iso": "2026-11-15T02:36:21.766Z",
+      "packets": {
+        "2": 1583,
+        "3": 1515
+      },
+      "actions": [
+        {
+          "t_unix": 1794710124.73,
+          "t_iso": "2026-11-15T02:35:24.729Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710134.655,
+          "t_iso": "2026-11-15T02:35:34.654Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710144.852,
+          "t_iso": "2026-11-15T02:35:44.851Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710154.528,
+          "t_iso": "2026-11-15T02:35:54.527Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710165.563,
+          "t_iso": "2026-11-15T02:36:05.562Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710175.509,
+          "t_iso": "2026-11-15T02:36:15.508Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_4",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing still next to the mat. On 'fall', fall onto the mat and stay down until 'get up'; then stand still again. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794710206.026,
+      "end_unix": 1794710266.027,
+      "start_iso": "2026-11-15T02:36:46.025Z",
+      "end_iso": "2026-11-15T02:37:46.026Z",
+      "packets": {
+        "2": 1407,
+        "3": 1372
+      },
+      "actions": [
+        {
+          "t_unix": 1794710209.055,
+          "t_iso": "2026-11-15T02:36:49.054Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710218.808,
+          "t_iso": "2026-11-15T02:36:58.807Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710228.954,
+          "t_iso": "2026-11-15T02:37:08.954Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710239.584,
+          "t_iso": "2026-11-15T02:37:19.583Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710248.877,
+          "t_iso": "2026-11-15T02:37:28.877Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710259.263,
+          "t_iso": "2026-11-15T02:37:39.263Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_5",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing still next to the mat. On 'fall', fall onto the mat and stay down until 'get up'; then stand still again. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794710284.826,
+      "end_unix": 1794710344.837,
+      "start_iso": "2026-11-15T02:38:04.826Z",
+      "end_iso": "2026-11-15T02:39:04.836Z",
+      "packets": {
+        "2": 1607,
+        "3": 1561
+      },
+      "actions": [
+        {
+          "t_unix": 1794710287.873,
+          "t_iso": "2026-11-15T02:38:07.872Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710297.778,
+          "t_iso": "2026-11-15T02:38:17.778Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710308.456,
+          "t_iso": "2026-11-15T02:38:28.456Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710317.48,
+          "t_iso": "2026-11-15T02:38:37.479Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710327.782,
+          "t_iso": "2026-11-15T02:38:47.782Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710337.487,
+          "t_iso": "2026-11-15T02:38:57.486Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "fall_6",
+      "people": 1,
+      "state": "fall",
+      "say": "One person standing still next to the mat. On 'fall', fall onto the mat and stay down until 'get up'; then stand still again. Use the mat, controlled fall: bend the knees, go down sideways.",
+      "ruview_id": null,
+      "prompts": [
+        "fall",
+        "get up"
+      ],
+      "teammates_block": false,
+      "prompt_gap": [
+        9.0,
+        11.0
+      ],
+      "start_unix": 1794710356.799,
+      "end_unix": 1794710416.822,
+      "start_iso": "2026-11-15T02:39:16.799Z",
+      "end_iso": "2026-11-15T02:40:16.821Z",
+      "packets": {
+        "2": 1630,
+        "3": 1548
+      },
+      "actions": [
+        {
+          "t_unix": 1794710359.804,
+          "t_iso": "2026-11-15T02:39:19.803Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710369.161,
+          "t_iso": "2026-11-15T02:39:29.160Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710378.463,
+          "t_iso": "2026-11-15T02:39:38.463Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710388.269,
+          "t_iso": "2026-11-15T02:39:48.269Z",
+          "action": "get_up",
+          "spoken": "get up"
+        },
+        {
+          "t_unix": 1794710398.481,
+          "t_iso": "2026-11-15T02:39:58.481Z",
+          "action": "fall",
+          "spoken": "fall"
+        },
+        {
+          "t_unix": 1794710408.786,
+          "t_iso": "2026-11-15T02:40:08.785Z",
+          "action": "get_up",
+          "spoken": "get up"
+        }
+      ]
+    },
+    {
+      "id": "still_1",
+      "people": 1,
+      "state": "still",
+      "say": "One person inside. Stand still.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "prompt_gap": [
+        5.0,
+        7.0
+      ],
+      "start_unix": 1794710430.914,
+      "end_unix": 1794710490.958,
+      "start_iso": "2026-11-15T02:40:30.913Z",
+      "end_iso": "2026-11-15T02:41:30.957Z",
+      "packets": {
+        "2": 1743,
+        "3": 1747
+      },
+      "actions": []
+    },
+    {
+      "id": "still_2",
+      "people": 1,
+      "state": "still",
+      "say": "One person inside. Sit still on the chair.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "prompt_gap": [
+        5.0,
+        7.0
+      ],
+      "start_unix": 1794710514.301,
+      "end_unix": 1794710574.303,
+      "start_iso": "2026-11-15T02:41:54.300Z",
+      "end_iso": "2026-11-15T02:42:54.303Z",
+      "packets": {
+        "2": 1735,
+        "3": 1759
+      },
+      "actions": []
+    },
+    {
+      "id": "still_3",
+      "people": 1,
+      "state": "still",
+      "say": "One person inside. Stand still, other spot.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "prompt_gap": [
+        5.0,
+        7.0
+      ],
+      "start_unix": 1794710587.022,
+      "end_unix": 1794710647.07,
+      "start_iso": "2026-11-15T02:43:07.022Z",
+      "end_iso": "2026-11-15T02:44:07.069Z",
+      "packets": {
+        "2": 1751,
+        "3": 1561
+      },
+      "actions": []
+    }
+  ]
+}

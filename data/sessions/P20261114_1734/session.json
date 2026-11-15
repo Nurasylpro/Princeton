@@ -1,0 +1,161 @@
+{
+  "session": "P20261114_1734",
+  "plan": "presence",
+  "created_iso": "2026-11-14T22:34:50.932Z",
+  "room": {
+    "size_m": [
+      2.5,
+      2.5,
+      2.5
+    ],
+    "door": "keep the same (open/closed) for recording and demo"
+  },
+  "transmitter": {
+    "name": "iPhone 15 Pro hotspot (transmitter)",
+    "pos_m": [
+      1.25,
+      1.25,
+      0.76
+    ]
+  },
+  "receivers": [
+    {
+      "node_id": 2,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        0.2,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    },
+    {
+      "node_id": 3,
+      "board": "ESP32-WROOM-32 DevKit V1 (classic ESP32, CP2102, micro-USB)",
+      "pos_m": [
+        2.3,
+        2.3,
+        0.4
+      ],
+      "distance_to_phone_m": 1.53
+    }
+  ],
+  "zone": "people counted only INSIDE the taped triangle formed by the iPhone and the receivers; normal crowd outside, kept >= 1 m from the tape",
+  "radio": {
+    "channel": 6,
+    "bandwidth_mhz": 20,
+    "csi": "HT: 256 int8 = L-LTF[0:128] + HT-LTF[128:256], [imag, real] pairs",
+    "nominal_rate_hz": "~30-45 per node (firmware cap 50), uneven: use ts_unix and seq"
+  },
+  "firmware": "RuView esp32-csi-node 0.8.18, local branch esp32-classic",
+  "chunks": [
+    {
+      "id": "in0_1",
+      "people": 0,
+      "state": "in0",
+      "say": "Nobody inside the triangle. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794695713.691,
+      "end_unix": 1794695773.712,
+      "start_iso": "2026-11-14T22:35:13.690Z",
+      "end_iso": "2026-11-14T22:36:13.711Z",
+      "packets": {
+        "2": 1789,
+        "3": 1693
+      },
+      "actions": []
+    },
+    {
+      "id": "in0_2",
+      "people": 0,
+      "state": "in0",
+      "say": "Nobody inside the triangle. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794695792.553,
+      "end_unix": 1794695852.553,
+      "start_iso": "2026-11-14T22:36:32.553Z",
+      "end_iso": "2026-11-14T22:37:32.553Z",
+      "packets": {
+        "2": 1731,
+        "3": 1627
+      },
+      "actions": []
+    },
+    {
+      "id": "in1_still_1",
+      "people": 1,
+      "state": "in1_still",
+      "say": "One person inside. Sit or stand quietly. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794695873.739,
+      "end_unix": 1794695933.789,
+      "start_iso": "2026-11-14T22:37:53.739Z",
+      "end_iso": "2026-11-14T22:38:53.788Z",
+      "packets": {
+        "2": 1822,
+        "3": 1824
+      },
+      "actions": []
+    },
+    {
+      "id": "in1_still_2",
+      "people": 1,
+      "state": "in1_still",
+      "say": "One person inside, other spot. Stay still. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794695943.771,
+      "end_unix": 1794696003.808,
+      "start_iso": "2026-11-14T22:39:03.770Z",
+      "end_iso": "2026-11-14T22:40:03.808Z",
+      "packets": {
+        "2": 1839,
+        "3": 1781
+      },
+      "actions": []
+    },
+    {
+      "id": "in1_moving_1",
+      "people": 1,
+      "state": "in1_moving",
+      "say": "One person inside. Move: turn, wave, small steps. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794696020.462,
+      "end_unix": 1794696080.486,
+      "start_iso": "2026-11-14T22:40:20.462Z",
+      "end_iso": "2026-11-14T22:41:20.486Z",
+      "packets": {
+        "2": 1725,
+        "3": 1718
+      },
+      "actions": []
+    },
+    {
+      "id": "in1_moving_2",
+      "people": 1,
+      "state": "in1_moving",
+      "say": "One person inside. Keep moving. Everyone else stays outside the tape, at least one metre away.",
+      "ruview_id": null,
+      "prompts": [],
+      "teammates_block": false,
+      "start_unix": 1794696092.975,
+      "end_unix": 1794696153.005,
+      "start_iso": "2026-11-14T22:41:32.974Z",
+      "end_iso": "2026-11-14T22:42:33.005Z",
+      "packets": {
+        "2": 1624,
+        "3": 1557
+      },
+      "actions": []
+    }
+  ]
+}
