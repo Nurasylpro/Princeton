@@ -36,7 +36,8 @@ while True:
         if dn and dn.get("person_down"):
             line = f"!!! PERSON DOWN for {dn['seconds']}s !!!  " + line
         elif dn:
-            line += f"  down={dn['smoothed']:.0%}"
+            lvl = f" (your level {dn['own_level']:.0%})" if dn.get("own_level") is not None else ""
+            line += f"  down={dn['smoothed']:.0%}{lvl}"
         fl = e.get("fall")
         if fl and fl.get("alert"):
             line = f"!!! FALL DETECTED {fl['seconds_since']}s ago !!!  " + line

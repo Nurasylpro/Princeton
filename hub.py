@@ -188,6 +188,8 @@ class Hub(asyncio.DatagramProtocol):
         self.occupancy = Occupancy()
         self.last_fall = 0.0
         self.down_probs: deque[float] = deque()
+        self.down_hist: deque[float] = deque(maxlen=24)  # ~20 s of 4 s-averages + current window
+        self.down_on, self.down_base = False, 0.0
         self.down_since = 0.0
         self.activity ={"label": None, "confidence": None, "raw_label": None, "source": "ruview"}
         self.adaptive_loaded = False
@@ -268,13 +270,31 @@ class Hub(asyncio.DatagramProtocol):
         while len(self.down_probs) > m["smooth_s"]:
             self.down_probs.popleft()
         smoothed = float(np.mean(self.down_probs))
-        is_down = len(self.down_probs) >= m["smooth_s"] and smoothed >= m["threshold"]
+        full = len(self.down_probs) >= m["smooth_s"]
+        if m.get("mode", "level") == "rise":
+            # Jump rule: alarm when the 4 s average rises `rise` above the person's own level
+            # (median of the previous BASE_S seconds); stays on until it falls back below
+            # half that jump. Robust to each spot/person having a different resting level.
+            hist = list(self.down_hist)
+            base = float(np.median(hist[:-m["smooth_s"]])) if len(hist) > m["smooth_s"] else smoothed
+            if not self.down_on and full and len(hist) > m["smooth_s"] and smoothed - base >= m["rise"]:
+                self.down_on, self.down_base = True, base
+            elif self.down_on and smoothed - self.down_base < m["rise"] / 2:
+                self.down_on = False
+            is_down = self.down_on
+            ref = round(self.down_base if self.down_on else base, 3)
+        else:
+            is_down = full and smoothed >= m["threshold"]
+            ref = None
+        if not is_down:  # only learn the resting level while nobody is down
+            self.down_hist.append(smoothed)
         if is_down and not self.down_since:
             self.down_since = now
         elif not is_down:
             self.down_since = 0.0
         return {"person_down": is_down, "prob": round(prob, 3), "smoothed": round(smoothed, 3),
-                "threshold": m["threshold"], "seconds": int(now - self.down_since) if self.down_since else 0}
+                "mode": m.get("mode", "level"), "threshold": m.get("threshold"), "rise": m.get("rise"),
+                "own_level": ref, "seconds": int(now - self.down_since) if self.down_since else 0}
 
     def fall(self, now: float) -> dict | None:
         m = self.fall_model
