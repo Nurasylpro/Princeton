@@ -190,6 +190,7 @@ class Hub(asyncio.DatagramProtocol):
         self.down_probs: deque[float] = deque()
         self.down_hist: deque[float] = deque(maxlen=24)  # ~20 s of 4 s-averages + current window
         self.down_on, self.down_base = False, 0.0
+        self.last_occupied = 0.0
         self.down_since = 0.0
         self.activity ={"label": None, "confidence": None, "raw_label": None, "source": "ruview"}
         self.adaptive_loaded = False
@@ -277,7 +278,8 @@ class Hub(asyncio.DatagramProtocol):
             # half that jump. Robust to each spot/person having a different resting level.
             hist = list(self.down_hist)
             base = float(np.median(hist[:-m["smooth_s"]])) if len(hist) > m["smooth_s"] else smoothed
-            if not self.down_on and full and len(hist) > m["smooth_s"] and smoothed - base >= m["rise"]:
+            armed = now - self.last_occupied <= 10.0  # someone was inside in the last 10 s
+            if not self.down_on and armed and full and len(hist) > m["smooth_s"] and smoothed - base >= m["rise"]:
                 self.down_on, self.down_base = True, base
             elif self.down_on and smoothed - self.down_base < m["rise"] / 2:
                 self.down_on = False
@@ -286,7 +288,7 @@ class Hub(asyncio.DatagramProtocol):
         else:
             is_down = full and smoothed >= m["threshold"]
             ref = None
-        if not is_down:  # only learn the resting level while nobody is down
+        if not is_down and self.occupancy.occupied:  # learn the resting level of a person who is up
             self.down_hist.append(smoothed)
         if is_down and not self.down_since:
             self.down_since = now
@@ -380,6 +382,18 @@ class Hub(asyncio.DatagramProtocol):
             }
         people = self.people(now)
         occupancy = self.occupancy.update(now, people) if people is not None else None
+        if self.occupancy.occupied:
+            self.last_occupied = now
+        down = self.down(now)
+        if down and down["person_down"]:
+            # A person lying on the floor is inside: the room must not turn "empty".
+            self.last_occupied = now
+            if not self.occupancy.occupied:
+                self.occupancy.occupied, self.occupancy.count, self.occupancy.since = True, "1", now
+            self.occupancy.reason = "person down"
+            self.occupancy.empty_since = None
+            if people is not None:
+                occupancy = self.occupancy.update(now, people)
         if people is not None:
             # Room-trained model: P(moving) is the calibrated movement score.
             presence = people["count"] != "0"
@@ -401,7 +415,7 @@ class Hub(asyncio.DatagramProtocol):
             "presence": presence,
             "occupancy": occupancy,
             "fall": self.fall(now),
-            "down": self.down(now),
+            "down": down,
         }
 
 
