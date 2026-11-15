@@ -79,6 +79,14 @@ def beep(freq: int = 880, ms: int = 250) -> None:
         winsound.Beep(freq, ms)
 
 
+def ruview(method: str, path: str, body: dict | None = None) -> dict:
+    """RuView is optional for recording: if it is down, note it and carry on."""
+    try:
+        return call(method, f"{RUVIEW}{path}", body)
+    except (urllib.error.URLError, OSError) as e:
+        return {"error": f"RuView not reachable ({e.__class__.__name__})"}
+
+
 def call(method: str, url: str, body: dict | None = None, timeout: float = 5.0) -> dict:
     data = json.dumps(body).encode() if body is not None else None
     req = urllib.request.Request(url, data=data, method=method,
@@ -113,8 +121,7 @@ def preflight() -> bool:
         h = call("GET", f"{RUVIEW}/health")
         print(f"  {'OK ' if h.get('status') == 'ok' else '!! '} RuView server: {h.get('processing', {}).get('state')}")
     except Exception:
-        print("  !!  RuView server not reachable on :3000 (docker start ruview)")
-        ok = False
+        print("  --  RuView server not running (only the website needs it; recording works without it)")
     return ok
 
 
@@ -125,7 +132,8 @@ def save(meta: dict, path: Path) -> None:
 
 
 def record_chunk(chunk: Chunk, session: str, voice: Voice) -> dict:
-    call("POST", f"{RUVIEW}/api/v1/recording/stop")  # defensive: nothing may be left running
+    if chunk.ruview_id:
+        ruview("POST", "/api/v1/recording/stop")  # defensive: nothing may be left running
     actions: list[dict] = []
     prompt_times: list[float] = []
     if chunk.prompts:
@@ -138,7 +146,7 @@ def record_chunk(chunk: Chunk, session: str, voice: Voice) -> dict:
     if not rec.get("ok"):
         raise RuntimeError(f"hub refused to record: {rec}")
     if chunk.ruview_id:
-        r = call("POST", f"{RUVIEW}/api/v1/recording/start",
+        r = ruview("POST", "/api/v1/recording/start",
                  {"id": chunk.ruview_id, "session_name": chunk.ruview_id, "label": chunk.state})
         if r.get("success") is False or r.get("error"):
             print(f"  (RuView recording not started: {r})")
@@ -162,7 +170,7 @@ def record_chunk(chunk: Chunk, session: str, voice: Voice) -> dict:
         end = time.time()
         stats = call("POST", f"{HUB}/v1/record/stop")
         if chunk.ruview_id:
-            call("POST", f"{RUVIEW}/api/v1/recording/stop")
+            ruview("POST", "/api/v1/recording/stop")
     beep(600, 400)
     voice.say("Done.")
     print()
