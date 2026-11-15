@@ -19,7 +19,7 @@ from sklearn.ensemble import ExtraTreesClassifier
 import features as feat
 import train_combined as tc
 
-W, HOP, SMOOTH_S, THRESHOLD = 3.0, 0.5, 4, 0.15
+W, HOP, SMOOTH_S, THRESHOLD = 3.0, 0.5, 4, 0.20
 
 
 def main():
