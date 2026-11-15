@@ -186,6 +186,7 @@ class Hub(asyncio.DatagramProtocol):
         self.count_model: dict | None = None
         self.recent_probs: deque[np.ndarray] = deque(maxlen=3)
         self.occupancy = Occupancy()
+        self.last_fall = 0.0
         self.activity ={"label": None, "confidence": None, "raw_label": None, "source": "ruview"}
         self.adaptive_loaded = False
         self.last_event: dict = {}
@@ -240,6 +241,27 @@ class Hub(asyncio.DatagramProtocol):
             self.recent_probs.clear()
             if hasattr(self, "occupancy"):
                 self.occupancy = Occupancy()
+        fall_path = MODELS_DIR / "fall_v1.pkl"   # separate event model, independent of ACTIVE
+        self.fall_model = None
+        if fall_path.exists():
+            with open(fall_path, "rb") as f:
+                self.fall_model = pickle.load(f)
+
+    FALL_ALERT_S = 30  # keep the alert visible this long after a detection
+
+    def fall(self, now: float) -> dict | None:
+        m = self.fall_model
+        if m is None:
+            return None
+        nodes = tuple(m["nodes"])
+        window = {n: self.nodes[n].window(now, m["window_s"]) for n in nodes if n in self.nodes}
+        prob = float(m["clf"].predict_proba(feat.fall_features(window, nodes).reshape(1, -1))[0, 1])
+        if prob >= m["threshold"] and now - self.last_fall > 5.0:
+            self.last_fall = now
+        alert = now - self.last_fall <= self.FALL_ALERT_S
+        return {"prob": round(prob, 3), "threshold": m["threshold"], "alert": alert,
+                "last_fall_iso": iso(self.last_fall) if self.last_fall else None,
+                "seconds_since": int(now - self.last_fall) if self.last_fall else None}
 
     def people(self, now: float) -> dict | None:
         """Room state from our model: people 0/1/2 and moving, averaged over the last 3 s."""
@@ -331,6 +353,7 @@ class Hub(asyncio.DatagramProtocol):
                        "firmware_per_node": firmware},
             "presence": presence,
             "occupancy": occupancy,
+            "fall": self.fall(now),
         }
 
 
@@ -452,7 +475,8 @@ def make_app(hub: Hub) -> web.Application:
     @routes.post("/v1/models/reload")
     async def reload(_):
         hub.load_model()
-        return web.json_response({"ok": True, "people_count": hub.count_model is not None})
+        return web.json_response({"ok": True, "people_count": hub.count_model is not None,
+                                  "fall": hub.fall_model is not None})
 
     app = web.Application()
     app.add_routes(routes)

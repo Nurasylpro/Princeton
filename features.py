@@ -102,3 +102,39 @@ def window_features(window: dict[int, tuple[np.ndarray, np.ndarray, np.ndarray]]
 
 def count_class(n_people: int) -> str:
     return "3+" if n_people >= 3 else str(n_people)
+
+
+# ---- fall events ------------------------------------------------------------------------------
+FALL_WINDOW_S = 3.0
+FALL_SEGMENTS = 6  # 0.5 s pieces: a fall = sudden burst of change, then stillness
+
+
+def segment_energy(t: np.ndarray, amps: np.ndarray, end: float) -> list[float]:
+    """Per 0.5 s piece of the window: mean frame-to-frame change, plus shape descriptors."""
+    if len(t) < MIN_PACKETS:
+        return [0.0] * (FALL_SEGMENTS + 4)
+    a = _normalise(amps.astype(np.float64))
+    d = np.abs(np.diff(a, axis=0)).mean(axis=1)
+    td = t[1:]
+    seg = FALL_WINDOW_S / FALL_SEGMENTS
+    e = []
+    for k in range(FALL_SEGMENTS):
+        lo = end - FALL_WINDOW_S + k * seg
+        m = (td >= lo) & (td < lo + seg)
+        e.append(float(d[m].mean()) if m.any() else 0.0)
+    e = np.array(e)
+    peak = e.max() + 1e-9
+    return [*e.tolist(), float(peak / (np.median(e) + 1e-9)),   # how sudden
+            float(np.argmax(e)),                                  # when the burst happened
+            float(e[-2:].mean() / peak),                          # stillness after the burst
+            float(e[:2].mean() / peak)]                           # calm before the burst
+
+
+def fall_features(window, nodes) -> np.ndarray:
+    base = window_features(window, {}, nodes)
+    extra: list[float] = []
+    for n in nodes:
+        t, a, _ = window.get(n, (np.empty(0), np.empty((0, 52)), np.empty(0)))
+        end = float(t[-1]) if len(t) else 0.0
+        extra += segment_energy(t, a, end)
+    return np.concatenate([base, np.asarray(extra)])

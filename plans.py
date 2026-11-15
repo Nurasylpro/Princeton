@@ -17,6 +17,7 @@ class Chunk:
     ruview_id: str | None    # RuView recording id (train_* -> RuView activity classifier), None = skip
     prompts: list[str] = field(default_factory=list)  # repeated spoken actions during the chunk
     teammates_block: bool = False
+    prompt_gap: tuple[float, float] = (5.0, 7.0)  # seconds between spoken commands
 
 
 # ---- plan "room": first session (people anywhere in the room) --------------------------------
@@ -102,5 +103,30 @@ PRESENCE_PLAN: list[Chunk] = [
     Chunk("in1_moving_2", 1, "in1_moving", "One person inside. Keep moving." + _OUT, None),
 ]
 
+# ---- plan "fall": controlled falls onto a mat inside the triangle + look-alike movements ------
+# A fall is an EVENT, labelled by the time its command was spoken (logged in "actions").
+# Look-alikes (fast sitting, lying down slowly, bending) teach the model what is NOT a fall.
+# SAFETY: thick mat / mattress, controlled sideways falls (knees first), a spotter next to it.
+FALL_STATES = {"fall": (1, True), "sit_fast": (1, True), "lie_slow": (1, True),
+               "pick_up": (1, True), "still": (1, False), "walk": (1, True)}
+_MAT = " Use the mat, controlled fall: bend the knees, go down sideways."
+FALL_PLAN: list[Chunk] = [
+    *[Chunk(f"fall_{i}", 1, "fall",
+            "One person standing next to the mat. On 'fall', fall onto the mat and lie still; "
+            "on 'get up', stand up and stay still." + _MAT,
+            None, ["fall", "get up"], prompt_gap=(9.0, 11.0)) for i in (1, 2, 3, 4)],
+    *[Chunk(f"sit_fast_{i}", 1, "sit_fast",
+            "One person next to the chair. Sit down QUICKLY on 'sit down', stand on 'stand up'.",
+            None, ["sit down", "stand up"], prompt_gap=(6.0, 8.0)) for i in (1, 2)],
+    *[Chunk(f"lie_slow_{i}", 1, "lie_slow",
+            "One person next to the mat. On 'lie down', lie down SLOWLY and calmly; on 'get up', stand up.",
+            None, ["lie down", "get up"], prompt_gap=(9.0, 11.0)) for i in (1, 2)],
+    Chunk("pick_up_1", 1, "pick_up", "One person standing. On 'pick up', bend down and pick something "
+          "up from the floor; on 'stand up', stand still.", None, ["pick up", "stand up"], prompt_gap=(6.0, 8.0)),
+    Chunk("still_1", 1, "still", "One person inside. Stand or sit quietly.", None),
+    Chunk("walk_1", 1, "walk", "One person inside. Walk around inside the triangle.", None),
+]
+
 PLANS = {"room": (ROOM_PLAN, ROOM_STATES), "zone": (ZONE_PLAN, ZONE_STATES),
-         "hall": (HALL_PLAN, HALL_STATES), "presence": (PRESENCE_PLAN, PRESENCE_STATES)}
+         "hall": (HALL_PLAN, HALL_STATES), "presence": (PRESENCE_PLAN, PRESENCE_STATES),
+         "fall": (FALL_PLAN, FALL_STATES)}

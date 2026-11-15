@@ -32,6 +32,11 @@ while True:
             line = (f"{occ:<20} | model: {STATE_TEXT.get(p['state'], p['state']):<18} "
                     f"people={p['count']} ({p['probs'].get(p['count'], 0):.0%})  "
                     f"moving={p['moving_prob']:.0%} [{bar:<20}]  {o.get('reason', '')}")
+        fl = e.get("fall")
+        if fl and fl.get("alert"):
+            line = f"!!! FALL DETECTED {fl['seconds_since']}s ago !!!  " + line
+        elif fl:
+            line += f"  fall={fl['prob']:.0%}"
         print(time.strftime("%H:%M:%S"), line, flush=True)
     except Exception as ex:
         print(time.strftime("%H:%M:%S"), f"hub not reachable: {ex}", flush=True)
