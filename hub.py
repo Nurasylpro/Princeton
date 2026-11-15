@@ -187,6 +187,8 @@ class Hub(asyncio.DatagramProtocol):
         self.recent_probs: deque[np.ndarray] = deque(maxlen=3)
         self.occupancy = Occupancy()
         self.last_fall = 0.0
+        self.down_probs: deque[float] = deque()
+        self.down_since = 0.0
         self.activity ={"label": None, "confidence": None, "raw_label": None, "source": "ruview"}
         self.adaptive_loaded = False
         self.last_event: dict = {}
@@ -241,6 +243,11 @@ class Hub(asyncio.DatagramProtocol):
             self.recent_probs.clear()
             if hasattr(self, "occupancy"):
                 self.occupancy = Occupancy()
+        down_path = MODELS_DIR / "down_v1.pkl"   # person-down model, independent of ACTIVE
+        self.down_model = None
+        if down_path.exists():
+            with open(down_path, "rb") as f:
+                self.down_model = pickle.load(f)
         fall_path = MODELS_DIR / "fall_v1.pkl"   # separate event model, independent of ACTIVE
         self.fall_model = None
         if fall_path.exists():
@@ -248,6 +255,26 @@ class Hub(asyncio.DatagramProtocol):
                 self.fall_model = pickle.load(f)
 
     FALL_ALERT_S = 30  # keep the alert visible this long after a detection
+
+    def down(self, now: float) -> dict | None:
+        """PERSON DOWN: someone lying on the floor, averaged over the last few seconds."""
+        m = self.down_model
+        if m is None:
+            return None
+        nodes = tuple(m["nodes"])
+        window = {n: self.nodes[n].window(now, m["window_s"]) for n in nodes if n in self.nodes}
+        prob = float(m["clf"].predict_proba(feat.down_features(window, nodes).reshape(1, -1))[0, 1])
+        self.down_probs.append(prob)
+        while len(self.down_probs) > m["smooth_s"]:
+            self.down_probs.popleft()
+        smoothed = float(np.mean(self.down_probs))
+        is_down = len(self.down_probs) >= m["smooth_s"] and smoothed >= m["threshold"]
+        if is_down and not self.down_since:
+            self.down_since = now
+        elif not is_down:
+            self.down_since = 0.0
+        return {"person_down": is_down, "prob": round(prob, 3), "smoothed": round(smoothed, 3),
+                "threshold": m["threshold"], "seconds": int(now - self.down_since) if self.down_since else 0}
 
     def fall(self, now: float) -> dict | None:
         m = self.fall_model
@@ -354,6 +381,7 @@ class Hub(asyncio.DatagramProtocol):
             "presence": presence,
             "occupancy": occupancy,
             "fall": self.fall(now),
+            "down": self.down(now),
         }
 
 
@@ -476,7 +504,8 @@ def make_app(hub: Hub) -> web.Application:
     async def reload(_):
         hub.load_model()
         return web.json_response({"ok": True, "people_count": hub.count_model is not None,
-                                  "fall": hub.fall_model is not None})
+                                  "fall": hub.fall_model is not None,
+                                  "person_down": hub.down_model is not None})
 
     app = web.Application()
     app.add_routes(routes)

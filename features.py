@@ -138,3 +138,14 @@ def fall_features(window, nodes) -> np.ndarray:
         end = float(t[-1]) if len(t) else 0.0
         extra += segment_energy(t, a, end)
     return np.concatenate([base, np.asarray(extra)])
+
+
+# ---- person down (lying on the floor) -----------------------------------------------------------
+def down_features(window, nodes) -> np.ndarray:
+    """Posture: the usual window features + the static channel shape (where the body is)."""
+    out = list(window_features(window, {}, nodes))
+    for n in nodes:
+        t, a, _ = window.get(n, (np.empty(0), np.empty((0, 104)), np.empty(0)))
+        out += list(_normalise(a.astype(np.float64)).mean(axis=0)) if len(t) >= MIN_PACKETS \
+            else [0.0] * a.shape[1] if a.ndim == 2 and a.shape[1] else [0.0] * 104
+    return np.nan_to_num(np.asarray(out, dtype=np.float64))

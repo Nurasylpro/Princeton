@@ -32,6 +32,11 @@ while True:
             line = (f"{occ:<20} | model: {STATE_TEXT.get(p['state'], p['state']):<18} "
                     f"people={p['count']} ({p['probs'].get(p['count'], 0):.0%})  "
                     f"moving={p['moving_prob']:.0%} [{bar:<20}]  {o.get('reason', '')}")
+        dn = e.get("down")
+        if dn and dn.get("person_down"):
+            line = f"!!! PERSON DOWN for {dn['seconds']}s !!!  " + line
+        elif dn:
+            line += f"  down={dn['smoothed']:.0%}"
         fl = e.get("fall")
         if fl and fl.get("alert"):
             line = f"!!! FALL DETECTED {fl['seconds_since']}s ago !!!  " + line
