@@ -192,7 +192,7 @@ def main() -> None:
             print(f"{i:2d}. {c.id:14s} {c.people} in room  {c.say}")
         return
 
-    prefix = {"room": "S", "zone": "Z", "hall": "H", "presence": "P", "fall": "F"}[args.plan]
+    prefix = {"room": "S", "zone": "Z", "hall": "H", "presence": "P", "fall": "F", "fallstill": "F"}[args.plan]
     session = args.resume or datetime.now().strftime(f"{prefix}%Y%m%d_%H%M")
     sdir = SESSIONS_DIR / session
     if args.resume and not (sdir / "session.json").exists():
@@ -241,7 +241,7 @@ def main() -> None:
                 if input("\nRun the teammates' block (sit/stand + jump, 3 min)? [y/n]: ").strip().lower() != "y":
                     break
             while True:
-                where = "inside the triangle" if meta.get("plan") in ("hall", "presence", "fall") else "in the room"
+                where = "inside the triangle" if meta.get("plan") in ("hall", "presence", "fall", "fallstill") else "in the room"
                 n_txt = f"{chunk.people}+" if meta.get("plan") == "hall" and chunk.people >= 3 else str(chunk.people)
                 print(f"\n--- Step {len(done) + i} of {len(PLAN)}: {chunk.id}  ({n_txt} people {where}) ---")
                 print(f"  {chunk.say}")

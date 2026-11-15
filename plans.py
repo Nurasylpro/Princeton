@@ -127,6 +127,17 @@ FALL_PLAN: list[Chunk] = [
     Chunk("walk_1", 1, "walk", "One person inside. Walk around inside the triangle.", None),
 ]
 
+# ---- plan "fallstill": ONLY falls vs standing/sitting still (more falls = better model) --------
+FALLSTILL_PLAN: list[Chunk] = [
+    *[Chunk(f"fall_{i}", 1, "fall",
+            "One person standing still next to the mat. On 'fall', fall onto the mat and stay down "
+            "until 'get up'; then stand still again." + _MAT,
+            None, ["fall", "get up"], prompt_gap=(9.0, 11.0)) for i in range(1, 7)],
+    Chunk("still_1", 1, "still", "One person inside. Stand still.", None),
+    Chunk("still_2", 1, "still", "One person inside. Sit still on the chair.", None),
+    Chunk("still_3", 1, "still", "One person inside. Stand still, other spot.", None),
+]
+
 PLANS = {"room": (ROOM_PLAN, ROOM_STATES), "zone": (ZONE_PLAN, ZONE_STATES),
          "hall": (HALL_PLAN, HALL_STATES), "presence": (PRESENCE_PLAN, PRESENCE_STATES),
-         "fall": (FALL_PLAN, FALL_STATES)}
+         "fall": (FALL_PLAN, FALL_STATES), "fallstill": (FALLSTILL_PLAN, FALL_STATES)}

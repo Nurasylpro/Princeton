@@ -31,11 +31,14 @@ IGNORE = (0.0, 4.0)     # anything else inside this range is ambiguous and skipp
 CATCH = (0.5, 4.0)      # a detection here counts as catching the fall
 MERGE_S = 2.0           # detections closer than this are one alarm
 import os
-POSITIVE = set(os.environ.get("FALL_POSITIVE", "fall").split(","))  # e.g. "fall,lie_down" = went down to the floor
+POSITIVE = set(os.environ.get("FALL_POSITIVE", "fall").split(","))
+# Only these chunk states are used (default: falls vs standing still, no look-alikes)
+STATES_USED = set(os.environ.get("FALL_STATES", "fall,still").split(","))  # e.g. "fall,lie_down" = went down to the floor
 
 
 def chunk_windows(c, nodes):
     falls = [a["t_unix"] for a in c.get("actions", []) if a["action"] in POSITIVE]
+    getups = [a["t_unix"] for a in c.get("actions", []) if a["action"] in ("get_up", "stand_up")]
     X, y, ends = [], [], []
     end = c["start_unix"] + feat.FALL_WINDOW_S
     while end <= c["end_unix"]:
@@ -44,6 +47,8 @@ def chunk_windows(c, nodes):
             lab = 1
         elif any(IGNORE[0] <= r <= IGNORE[1] for r in rel):
             lab = None
+        elif any(0.0 <= end - g <= 5.0 for g in getups):
+            lab = None  # getting up is a different movement; not "still", not "fall"
         else:
             lab = 0
         w = {}
@@ -54,7 +59,7 @@ def chunk_windows(c, nodes):
         y.append(lab)
         ends.append(end)
         end += HOP_S
-    return np.nan_to_num(np.array(X)), y, np.array(ends), falls
+    return np.nan_to_num(np.array(X)), y, np.array(ends), falls, getups
 
 
 def events(ends, prob, thr):
@@ -74,15 +79,19 @@ def clf():
 
 
 def main() -> None:
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         sys.exit(__doc__)
-    session = sys.argv[1]
-    meta = json.loads((tc.SESSIONS / session / "session.json").read_text())
-    nodes = tuple(r["node_id"] for r in meta["receivers"])
-    chunks = []
-    for c in meta["chunks"]:
+    sessions = sys.argv[1:]
+    session = "+".join(sessions)
+    chunks, nodes = [], None
+    for sess in sessions:
+      meta = json.loads((tc.SESSIONS / sess / "session.json").read_text())
+      nodes = nodes or tuple(r["node_id"] for r in meta["receivers"])
+      for c in meta["chunks"]:
+        if c["state"] not in STATES_USED:
+            continue
         c = dict(c)
-        c["series"] = tc.load(tc.SESSIONS / session / "raw" / f"{c['id']}.bin")
+        c["series"] = tc.load(tc.SESSIONS / sess / "raw" / f"{c['id']}.bin")
         c["fold"] = int(c["id"].rsplit("_", 1)[-1]) % 2  # odd vs even repetition
         c["win"] = chunk_windows(c, nodes)
         chunks.append(c)
@@ -105,13 +114,15 @@ def main() -> None:
     for thr in (0.3, 0.4, 0.5, 0.6, 0.7, 0.8):
         caught, fa, minutes, per = 0, 0, 0.0, {}
         for c in chunks:
-            _, _, ends, falls = c["win"]
+            _, _, ends, falls, getups = c["win"]
             alarms = events(ends, c["prob"], thr)
             minutes += (c["end_unix"] - c["start_unix"]) / 60
             caught += sum(any(CATCH[0] <= a - f <= CATCH[1] for a in alarms) for f in falls)
             false = [a for a in alarms if not any(-0.5 <= a - f <= CATCH[1] + 1 for f in falls)]
             fa += len(false)
-            per[c["state"]] = per.get(c["state"], 0) + len(false)
+            gu = [a for a in false if any(0.0 <= a - g <= 5.0 for g in getups)]
+            per["during get-up"] = per.get("during get-up", 0) + len(gu)
+            per[c["state"]] = per.get(c["state"], 0) + len(false) - len(gu)
         rate = fa / minutes
         print(f"  {thr:.1f}  {caught:2d}/{n_falls} ({caught / max(n_falls, 1):4.0%})   {rate:5.2f}            {per}")
         score = caught / max(n_falls, 1) - 0.5 * rate
