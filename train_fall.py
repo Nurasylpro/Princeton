@@ -30,10 +30,12 @@ POS = (1.0, 3.0)        # window end - command time -> "fall"
 IGNORE = (0.0, 4.0)     # anything else inside this range is ambiguous and skipped
 CATCH = (0.5, 4.0)      # a detection here counts as catching the fall
 MERGE_S = 2.0           # detections closer than this are one alarm
+import os
+POSITIVE = set(os.environ.get("FALL_POSITIVE", "fall").split(","))  # e.g. "fall,lie_down" = went down to the floor
 
 
 def chunk_windows(c, nodes):
-    falls = [a["t_unix"] for a in c.get("actions", []) if a["action"] == "fall"]
+    falls = [a["t_unix"] for a in c.get("actions", []) if a["action"] in POSITIVE]
     X, y, ends = [], [], []
     end = c["start_unix"] + feat.FALL_WINDOW_S
     while end <= c["end_unix"]:
