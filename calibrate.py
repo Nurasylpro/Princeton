@@ -25,5 +25,6 @@ except urllib.error.HTTPError as e:
 if res.get("ok"):
     print(f"  done. packets per board {res['packets']}; fingerprint moved by {res['fingerprint_shift']}")
     print("  (a large shift means conditions had drifted a lot since training)")
+    print("  STARTED OVER: room = EMPTY, all timers 0 s, no alarms. Now enter and do your test.")
 else:
     print("  FAILED:", res)

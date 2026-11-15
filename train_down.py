@@ -32,8 +32,8 @@ def main():
         meta = json.loads((S / "session.json").read_text())
         nodes = nodes or tuple(r["node_id"] for r in meta["receivers"])
         for c in meta["chunks"]:
-            if c["state"] not in ("fall", "still"):
-                continue
+            if c["state"] not in ("fall", "still", "in0", "empty"):
+                continue  # in0/empty = empty room: teaches "nobody there is NOT lying"
             ser = tc.load(S / "raw" / f"{c['id']}.bin")
             acts = sorted((a["t_unix"], a["action"]) for a in c.get("actions", []))
             downs, cur = [], None

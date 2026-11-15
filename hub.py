@@ -259,6 +259,16 @@ class Hub(asyncio.DatagramProtocol):
 
     FALL_ALERT_S = 30  # keep the alert visible this long after a detection
 
+    def reset_live_state(self) -> None:
+        """Start over: room empty, all timers 0, no alarms, person level forgotten."""
+        self.occupancy = Occupancy()
+        self.recent_probs.clear()
+        self.down_probs.clear()
+        self.down_hist.clear()
+        self.down_on, self.down_base, self.down_since = False, 0.0, 0.0
+        self.last_occupied = 0.0
+        self.last_fall = 0.0
+
     def down(self, now: float) -> dict | None:
         """PERSON DOWN: someone lying on the floor, averaged over the last few seconds."""
         m = self.down_model
@@ -529,10 +539,15 @@ def make_app(hub: Hub) -> web.Application:
         hub.count_model["calibrated_at"] = iso(time.time())
         with open(active_model_path(), "wb") as f:
             pickle.dump(hub.count_model, f)
-        hub.recent_probs.clear()
+        hub.reset_live_state()
         return web.json_response({"ok": True, "seconds": seconds,
                                   "packets": {str(n): len(cap[n]) for n in nodes},
                                   "fingerprint_shift": shift})
+
+    @routes.post("/v1/reset")
+    async def reset(_):
+        hub.reset_live_state()
+        return web.json_response({"ok": True})
 
     @routes.post("/v1/models/reload")
     async def reload(_):
