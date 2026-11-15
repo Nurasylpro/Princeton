@@ -379,7 +379,7 @@ class Hub(asyncio.DatagramProtocol):
         # A node with no packets in the last 2 s makes every estimate meaningless: say so
         # instead of letting the model guess from an empty window.
         no_data = [n for n in feat.NODES
-                   if n not in self.nodes or now - self.nodes[n].last_seen > 2.0]
+                   if n not in self.nodes or now - self.nodes[n].last_seen > 5.0]  # ride out short blips
         if no_data:
             self.recent_probs.clear()
             return {
@@ -463,6 +463,10 @@ async def broadcast_events(hub: Hub) -> None:
 
 def make_app(hub: Hub) -> web.Application:
     routes = web.RouteTableDef()
+
+    @routes.get("/")
+    async def dashboard(_):
+        return web.FileResponse(ROOT / "dashboard.html")
 
     @routes.get("/v1/status")
     async def status(_):

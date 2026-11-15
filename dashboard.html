@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AuraCare</title>
+<style>
+  :root { --bg:#0b0f14; --fg:#e8eef5; --dim:#7d8a99; --ok:#2ecc71; --empty:#5b6b7c; --alert:#ff3b3b; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--fg); font-family:system-ui,Segoe UI,Arial,sans-serif;
+         height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4vh; }
+  #state { font-size:14vw; font-weight:800; letter-spacing:.02em; line-height:1; }
+  #since { font-size:3vw; color:var(--dim); }
+  #alert { display:none; font-size:8vw; font-weight:900; color:#fff; background:var(--alert);
+           padding:2vh 4vw; border-radius:2vw; animation:blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity:.55; } }
+  .meters { display:flex; gap:6vw; }
+  .meter { text-align:center; }
+  .meter .label { font-size:2.2vw; color:var(--dim); text-transform:uppercase; letter-spacing:.1em; }
+  .meter .value { font-size:6vw; font-weight:700; }
+  .meter .sub { font-size:1.6vw; color:var(--dim); }
+  #status { position:fixed; bottom:2vh; font-size:1.5vw; color:var(--dim); }
+  #status.bad { color:#f5a623; }
+  body.alert { background:#2a0000; }
+</style>
+</head>
+<body>
+  <div id="alert">PERSON DOWN</div>
+  <div id="state">…</div>
+  <div id="since"></div>
+  <div class="meters">
+    <div class="meter"><div class="label">Moving</div><div class="value" id="moving">–</div></div>
+    <div class="meter"><div class="label">Down</div><div class="value" id="down">–</div>
+      <div class="sub" id="level"></div></div>
+  </div>
+  <div id="status">connecting…</div>
+<script>
+const $ = id => document.getElementById(id);
+const pct = v => (v === null || v === undefined) ? "–" : Math.round(v * 100) + "%";
+const fmt = s => s >= 60 ? `${Math.floor(s / 60)} min ${s % 60} s` : `${s} s`;
+let lastGood = 0;
+
+async function tick() {
+  try {
+    const r = await fetch("/v1/events/latest", { cache: "no-store" });
+    const e = await r.json();
+    const o = e.occupancy, dn = e.down;
+    if (e.no_data_nodes && e.no_data_nodes.length) {
+      // keep showing the last answer; only say so after a real outage
+      if (Date.now() - lastGood > 5000) {
+        $("status").textContent = `No data from ESP ${e.no_data_nodes.join(", ")}: laptop on "iPhone" Wi-Fi? boards powered?`;
+        $("status").className = "bad";
+      }
+      return;
+    }
+    lastGood = Date.now();
+    if (o) {
+      $("state").textContent = o.occupied ? "OCCUPIED" : "EMPTY";
+      $("state").style.color = o.occupied ? "var(--ok)" : "var(--empty)";
+      $("since").textContent = (o.occupied ? "for " : "for ") + fmt(o.seconds);
+    } else {
+      $("state").textContent = "NO MODEL";
+      $("since").textContent = "run train_model.py";
+    }
+    $("moving").textContent = pct(e.motion && e.motion.score);
+    if (dn) {
+      $("down").textContent = pct(dn.smoothed);
+      $("level").textContent = dn.own_level !== null && dn.own_level !== undefined ? `your level ${pct(dn.own_level)}` : "";
+      const isDown = dn.person_down;
+      $("alert").style.display = isDown ? "block" : "none";
+      $("alert").textContent = isDown ? `PERSON DOWN · ${fmt(dn.seconds)}` : "";
+      document.body.classList.toggle("alert", isDown);
+    }
+    $("status").textContent = "live";
+    $("status").className = "";
+  } catch (err) {
+    if (Date.now() - lastGood > 5000) {
+      $("status").textContent = "hub not reachable: is hub.py running?";
+      $("status").className = "bad";
+    }
+  }
+}
+setInterval(tick, 1000);
+tick();
+</script>
+</body>
+</html>
